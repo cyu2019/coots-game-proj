@@ -49,7 +49,7 @@ func jump_cut():
 	if velocity.y < -100:
 		velocity.y /= 2
 
-func hurt(damage=1):
+func hurt(_damage=1):
 	if is_invincible or state == GAME_STATE.DASH or Globals.ui.won:
 		return
 	
