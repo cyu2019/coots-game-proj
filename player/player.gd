@@ -109,8 +109,7 @@ func _process(delta):
 			dash()
 		
 		if Input.is_action_just_pressed("attack"):
-			state = GAME_STATE.ATTACK
-			$AnimatedSprite.play("attack")
+			attack()
 	
 			#$Camera2D.shake(200, 0.3)
 			pass
@@ -118,12 +117,8 @@ func _process(delta):
 	elif state == GAME_STATE.ATTACK:
 		process_movement(delta)
 		
-		if $AnimatedSprite.animation == "attack" and $AnimatedSprite.frame >= 2:
-			var slash = SLASH_SCENE.instance()
-			var offset_dir = Vector2(-1 if $AnimatedSprite.flip_h else 1, 0)
-			slash.init(global_position, offset_dir)
-			get_tree().get_root().add_child(slash)
-			state = GAME_STATE.ATTACK_SLASHED
+		if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 2:
+			spawn_slash()
 
 	elif state == GAME_STATE.ATTACK_SLASHED:
 		process_movement(delta)
@@ -151,6 +146,29 @@ func dash():
 	velocity = DASH_SPEED * Vector2(dir, 0)
 	$AnimatedSprite.play("dash")
 
+func attack():
+	state = GAME_STATE.ATTACK
+	if not is_on_floor() and Input.is_action_pressed("down"):
+		$AnimatedSprite.play("attack_down")
+	elif Input.is_action_pressed("up"):
+		$AnimatedSprite.play("attack_up")
+	else:
+		$AnimatedSprite.play("attack")
+func spawn_slash():
+	
+	var offset_dir = Vector2(-1 if $AnimatedSprite.flip_h else 1, 0)
+	if $AnimatedSprite.animation == "attack_up":
+		offset_dir = Vector2(0,-1)
+	elif $AnimatedSprite.animation == "attack_down":
+		offset_dir = Vector2(0, 1)
+		
+		
+	var slash = SLASH_SCENE.instance()
+	slash.init(offset_dir)
+	#slash.init(global_position, offset_dir)
+	#get_tree().get_root().add_child(slash)
+	add_child(slash)
+	state = GAME_STATE.ATTACK_SLASHED
 func process_movement(delta):
 	
 	
@@ -228,7 +246,7 @@ func _on_DashCooldownTimer_timeout():
 	can_dash = true
 
 func _on_AnimatedSprite_animation_finished():
-	if $AnimatedSprite.animation == "attack" and (state == GAME_STATE.ATTACK or state == GAME_STATE.ATTACK_SLASHED):
+	if $AnimatedSprite.animation.begins_with("attack") and (state == GAME_STATE.ATTACK or state == GAME_STATE.ATTACK_SLASHED):
 		state = GAME_STATE.MOVEMENT
 	
 	pass # Replace with function body.

@@ -13,9 +13,20 @@ func _ready():
 	$AnimatedSprite.play()
 	pass # Replace with function body.
 
+"""
+#unused, if we want slash to not be stuck to the player
 func init(pos, offset_dir):
 	global_position = pos + offset_dir * OFFSET_AMOUNT
-	rotation = Vector2.RIGHT.angle_to(offset_dir) 
+	var angle = Vector2.RIGHT.angle_to(offset_dir) 
+	$AnimatedSprite.rotation = angle
+	$CollisionShape2D.rotation = angle
+"""
+	
+func init(offset_dir):
+	transform.origin = offset_dir * OFFSET_AMOUNT
+	var angle = Vector2.RIGHT.angle_to(offset_dir) 
+	$AnimatedSprite.rotation = angle
+	$CollisionShape2D.rotation = angle
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
