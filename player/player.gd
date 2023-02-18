@@ -19,12 +19,15 @@ const jump_buffer = 0.1
 const DASH_SPEED = 1300
 var dash_time = 0.25
 # ========================
-var is_dashing = false
+
+enum GAME_STATE {MOVEMENT, DASH, ATTACK}
+var state = GAME_STATE.MOVEMENT
 var can_dash = true
 
 
 var velocity
 var snap
+var was_on_floor = true
 
 
 var enemies_in_hurtbox = []
@@ -45,7 +48,7 @@ func jump_cut():
 		velocity.y /= 2
 
 func hurt(damage=1):
-	if is_invincible or is_dashing or Globals.ui.won:
+	if is_invincible or state == GAME_STATE.DASH or Globals.ui.won:
 		return
 	
 	snap = Vector2.ZERO
@@ -55,18 +58,6 @@ func hurt(damage=1):
 	$InvincibilityTimer.start()
 	is_invincible = true
 	$AnimatedSprite.modulate.a = 0.5
-
-func dash():
-	is_dashing = true
-	can_dash = false
-	$DashSound.play()
-	$DashCooldownTimer.start()
-	$DashTimer.start(dash_time)
-	var dir = 1
-	if ($AnimatedSprite.flip_h):
-		dir = -1
-	velocity = DASH_SPEED * Vector2(dir, 0)
-	$AnimatedSprite.play("dash")
 
 func _on_InvincibilityTimer_timeout():
 	$AnimatedSprite.modulate.a = 1
@@ -88,12 +79,20 @@ func _on_HurtBox_body_exited(body):
 	if i > -1:
 		enemies_in_hurtbox.remove(i)
 
+func squashy_stretch(delta):
+	$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, 0.3 - abs(velocity.x)/max_speed/50, delta*5)
+	$AnimatedSprite.scale.x = lerp($AnimatedSprite.scale.x, 0.3 - abs(velocity.y)/max_speed/50, delta*5)
+	if is_on_floor() and not was_on_floor:
+		$AnimatedSprite.scale.y = 0.28
+
 # called every frame
 func _process(delta):	
 	# handles falling to their death
 	if global_position.y > 5000:
 		hurt()
 	
+	#squashy_stretch(delta)
+	was_on_floor = is_on_floor()
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
@@ -101,9 +100,22 @@ func _process(delta):
 	if len(enemies_in_hurtbox) > 0:
 		hurt()
 	
-	if not is_dashing:
+	if state == GAME_STATE.MOVEMENT:
 		process_movement(delta)
-	else: #not dashing
+		
+		if Input.is_action_just_pressed("dash") and can_dash:
+			dash()
+		
+		if Input.is_action_just_pressed("attack"):
+			attack()
+			#$Camera2D.shake(200, 0.3)
+			pass
+
+	elif state == GAME_STATE.ATTACK:
+		process_movement(delta)
+		pass
+	elif state == GAME_STATE.DASH:
+		
 		"""
 		# code that used to cancel dashing if you pressed it twice
 		if Input.is_action_just_pressed("dash"):
@@ -111,15 +123,26 @@ func _process(delta):
 		"""
 		pass
 		
-	if Input.is_action_just_pressed("attack"):
-		
-		#$Camera2D.shake(200, 0.3)
-		pass
-		
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
+func dash():
+	state = GAME_STATE.DASH
+	can_dash = false
+	#$DashSound.play()
+	$DashCooldownTimer.start()
+	$DashTimer.start(dash_time)
+	var dir = 1
+	if ($AnimatedSprite.flip_h):
+		dir = -1
+	velocity = DASH_SPEED * Vector2(dir, 0)
+	$AnimatedSprite.play("dash")
+
+func attack():
+	state = GAME_STATE.ATTACK
+	$AnimatedSprite.play("attack")
 
 func process_movement(delta):
+	
 	
 	var on_floor = is_on_floor()
 	
@@ -153,30 +176,31 @@ func process_movement(delta):
 		else:
 			# double jump
 			pass
-		
+	
 	if Input.is_action_just_released("jump"):
 		jump_cut()
 
-	if velocity.x < 0:
-		$AnimatedSprite.flip_h = true
-	elif velocity.x > 0:
-		$AnimatedSprite.flip_h = false
+	if state == GAME_STATE.MOVEMENT:
+		if velocity.x < 0:
+			$AnimatedSprite.flip_h = true
+		elif velocity.x > 0:
+			$AnimatedSprite.flip_h = false
 
-	if velocity.y > 0:
-		$AnimatedSprite.play("fall")
-	elif velocity.y < 0:
-		$AnimatedSprite.play("jump")
-	elif abs(velocity.x) > 0:
-		if $AnimatedSprite.animation == "fall": # was falling, play landing sound
-			#$JumpSound.play() 
-			pass
-		$AnimatedSprite.play("run")
-	else:
-		if $AnimatedSprite.animation == "fall": # was falling, play landing sound
-			#$JumpSound.play()
-			pass 
-		
-		$AnimatedSprite.play("idle")
+		if velocity.y > 0:
+			$AnimatedSprite.play("fall")
+		elif velocity.y < 0:
+			$AnimatedSprite.play("jump")
+		elif abs(velocity.x) > 0:
+			if $AnimatedSprite.animation == "fall": # was falling, play landing sound
+				#$JumpSound.play() 
+				pass
+			$AnimatedSprite.play("run")
+		else:
+			if $AnimatedSprite.animation == "fall": # was falling, play landing sound
+				#$JumpSound.play()
+				pass 
+			
+			$AnimatedSprite.play("idle")
 	
 	"""
 	#old footstep code
@@ -185,15 +209,19 @@ func process_movement(delta):
 	elif $AnimatedSprite.animation != "run":
 		$FootstepSound.stop()	
 	"""
-	
-	if Input.is_action_just_pressed("dash") and can_dash:
-		dash()
 
 func _on_DashTimer_timeout():
-	is_dashing = false
+	if state == GAME_STATE.DASH:
+		state = GAME_STATE.MOVEMENT
 
 func _on_DashCooldownTimer_timeout():
 	can_dash = true
+
+func _on_AnimatedSprite_animation_finished():
+	if $AnimatedSprite.animation == "attack" and state == GAME_STATE.ATTACK:
+		state = GAME_STATE.MOVEMENT
+	
+	pass # Replace with function body.
 
 
 """
