@@ -4,6 +4,8 @@ extends KinematicBody2D
 const IS_PLAYER = true
 
 
+const SLASH_SCENE = preload("res://player/slash/slash.tscn")
+
 # == numbers to tweak == 
 const max_speed = 600 # How fast the player will move (pixels/sec).
 const acceleration = 200
@@ -20,7 +22,7 @@ const DASH_SPEED = 1300
 var dash_time = 0.25
 # ========================
 
-enum GAME_STATE {MOVEMENT, DASH, ATTACK}
+enum GAME_STATE {MOVEMENT, DASH, ATTACK, ATTACK_SLASHED}
 var state = GAME_STATE.MOVEMENT
 var can_dash = true
 
@@ -107,13 +109,25 @@ func _process(delta):
 			dash()
 		
 		if Input.is_action_just_pressed("attack"):
-			attack()
+			state = GAME_STATE.ATTACK
+			$AnimatedSprite.play("attack")
+	
 			#$Camera2D.shake(200, 0.3)
 			pass
 
 	elif state == GAME_STATE.ATTACK:
 		process_movement(delta)
-		pass
+		
+		if $AnimatedSprite.animation == "attack" and $AnimatedSprite.frame >= 2:
+			var slash = SLASH_SCENE.instance()
+			var offset_dir = Vector2(-1 if $AnimatedSprite.flip_h else 1, 0)
+			slash.init(global_position, offset_dir)
+			get_tree().get_root().add_child(slash)
+			state = GAME_STATE.ATTACK_SLASHED
+
+	elif state == GAME_STATE.ATTACK_SLASHED:
+		process_movement(delta)
+
 	elif state == GAME_STATE.DASH:
 		
 		"""
@@ -136,10 +150,6 @@ func dash():
 		dir = -1
 	velocity = DASH_SPEED * Vector2(dir, 0)
 	$AnimatedSprite.play("dash")
-
-func attack():
-	state = GAME_STATE.ATTACK
-	$AnimatedSprite.play("attack")
 
 func process_movement(delta):
 	
@@ -218,7 +228,7 @@ func _on_DashCooldownTimer_timeout():
 	can_dash = true
 
 func _on_AnimatedSprite_animation_finished():
-	if $AnimatedSprite.animation == "attack" and state == GAME_STATE.ATTACK:
+	if $AnimatedSprite.animation == "attack" and (state == GAME_STATE.ATTACK or state == GAME_STATE.ATTACK_SLASHED):
 		state = GAME_STATE.MOVEMENT
 	
 	pass # Replace with function body.
