@@ -6,7 +6,7 @@ const max_speed = 600 # How fast the player will move (pixels/sec).
 const acceleration = 200
 
 const gravity = 1600
-const jump_speed = 1100
+const jump_speed = 300
 var time_since_on_floor = 999
 const coyote_time = 0.1
 
@@ -63,10 +63,8 @@ func _on_HurtBox_body_exited(body):
 		enemies_in_hurtbox.remove(i)
 
 func move(dir, delta):
-	# move toward the player, need to normalize then scale properly rather than decrease as it gets closer to the player
-	velocity.x = dir.x * delta
-	
-	velocity.y = dir.y * delta
+	velocity.x = dir.x * 100
+	velocity.y = dir.y * 100
 	var on_floor = is_on_floor()
 	if(on_floor):
 		velocity.y = 0
@@ -82,52 +80,76 @@ func _process(delta):
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
-	
+	var dir = (Globals.player.global_position - global_position).normalized()
+
 	# if idle, make a choice on which of the three combos to use
 	if state == GAME_STATE.IDLE:
 		# Same y coordinate and on floor -> we'll try to kick towards them
-		"""if(Globals.player.global_position.y == global_position.y and was_on_floor):
+		if(global_position.y < Globals.player.global_position.y + radius and 
+			Globals.player.global_position.y - radius < global_position.y and was_on_floor):
 			state = GAME_STATE.COMBO_3
+			velocity = Vector2.ZERO
 			pass
 		# if within a certain radius of enemy, try to stomp them
 		elif(global_position.x < Globals.player.global_position.x + radius and 
 			 Globals.player.global_position.x - radius < global_position.x):
 			state = GAME_STATE.COMBO_1
+			velocity.x = 0
+			velocity.y = -jump_speed * 2
+			snap = Vector2.ZERO	
 			pass
-		# otherwise move toward player
+		# otherwise try a diagonal kick
 		elif(global_position.y < Globals.player.global_position.y + radius and 
 			 Globals.player.global_position.y - radius < global_position.y):
 			state = GAME_STATE.COMBO_2
+			velocity.x = 0
+			velocity.y = -jump_speed
+			snap = Vector2.ZERO	
 			pass
+		# otherwise move toward player
 		else:
-			var dir = Globals.player.global_position - global_position
-			pass"""
-		var dir = (Globals.player.global_position - global_position)
-		velocity = Vector2.ZERO
-		move(dir, delta)
+			velocity = Vector2.ZERO
+			move(dir, delta)
 	# if combo1, do a stomp
-	elif state == GAME_STATE.COMBO_1:
-		process_movement(delta)
+	elif state == GAME_STATE.COMBO_1:		
+		# figure out how to extend hit box in a stomp formation
+		# slime should also fall faster than gravity
+		# current up speed is 2000 and then go down 2 * gravity
+		# this part is the fall down faster, the jump part is in idle
+		velocity.y += 2 * gravity * delta
+		snap = Vector2.ZERO	
+		if(was_on_floor):
+			state = GAME_STATE.IDLE
 		pass
 
 	# if combo2, do a jump then diagonal kick
 	elif state == GAME_STATE.COMBO_2:
-		process_movement(delta)
+		# slime should also fall faster than gravity
+		# this part is the fall down faster, the jump part is in idle
+		velocity.x += dir.x  * 100
+		velocity.y += 0.5 * gravity * delta
+		if(was_on_floor):
+			state = GAME_STATE.IDLE
 		pass
 	# if combo3, do a kick across the ground
 	elif state == GAME_STATE.COMBO_3:
-		process_movement(delta)
-		"""
-		# code that used to cancel dashing if you pressed it twice
-		if Input.is_action_just_pressed("dash"):
-			is_dashing = false
-		"""
+		# just move in the x direction fast
+		velocity.x += dir.x * 200
+		if(was_on_floor):
+			state = GAME_STATE.IDLE
 		pass
 		
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
 func attack():
-	state = GAME_STATE.ATTACK
+	if state == GAME_STATE.COMBO_1:
+		pass
+	elif state == GAME_STATE.COMBO_2:
+		pass
+	elif state == GAME_STATE.COMBO_3:
+		pass
+	else:
+		pass
 
 func process_movement(delta):
 	var on_floor = is_on_floor()
@@ -162,9 +184,3 @@ func process_movement(delta):
 		else:
 			# double jump
 			pass
-
-func _on_AnimatedSprite_animation_finished():
-	if $AnimatedSprite.animation == "attack" and state == GAME_STATE.ATTACK:
-		state = GAME_STATE.MOVEMENT
-	
-	pass # Replace with function body.
