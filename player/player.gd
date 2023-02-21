@@ -11,7 +11,7 @@ const max_speed = 600 # How fast the player will move (pixels/sec).
 const acceleration = 300
 
 const gravity = 50
-const jump_speed = 1200
+const jump_speed = 2000
 var time_since_on_floor = 999
 const coyote_time = 0.1
 

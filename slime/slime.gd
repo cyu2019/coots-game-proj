@@ -12,15 +12,23 @@ const KICK_SPEED = 1300
 const STAGE_EDGE_X = 800
 const ATTACK_HEIGHT = 300
 
+"This is just so we don't have to hit it for a while, this can be tuned later"
+const MAX_HEALTH = 30
+
 const radius = 50
 
 const shake_amount = 10
+
 # ========================
 
 # COMBO 1 = Falcon stomp
 # COMBO 2 = Falcon kick air
 # COMBO 3 = Falcon kick ground
-enum GAME_STATE {IDLE, STOMP_WINDUP, STOMP, KICK_WINDUP, KICK, AIR_KICK_WINDUP, AIR_KICK, LAND}
+enum GAME_STATE {IDLE, 
+				 STOMP_WINDUP, STOMP, 
+				 KICK_WINDUP, KICK, 
+				 AIR_KICK_WINDUP, AIR_KICK, 
+				 LAND}
 var state = GAME_STATE.IDLE
 
 var velocity
@@ -35,7 +43,7 @@ var target_position = Vector2(0,0)
 var x_dir_to_player
 
 
-var health = 60
+var health = MAX_HEALTH
 
 
 # called on node beginning
@@ -48,11 +56,11 @@ func die():
 	queue_free()
 
 func hurt(damage=1):
-	health -= 1
+	health -= damage
 	print(health)
 	$ShakeTimer.start()
 	
-	if health == 20:
+	if health == floor(MAX_HEALTH / 3.0):
 		#$WindupTimer.wait_time = 0.5
 		$ActionTimer.wait_time = 2
 	
@@ -66,13 +74,6 @@ func _on_HurtBox_body_exited(body):
 	var i = enemies_in_hurtbox.find(body)
 	if i > -1:
 		enemies_in_hurtbox.remove(i)
-
-"""
-func move(dir, delta):
-	velocity = dir * 100
-	if is_on_floor():
-		velocity.y = 0
-"""
 
 func face_player():
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
@@ -143,82 +144,25 @@ func _process(delta):
 		$AnimatedSprite.play("land")
 		process_movement_gravity(delta)
 		
-	"""
-	# if idle, make a choice on which of the three combos to use
-	if state == GAME_STATE.IDLE:
-		# Same y coordinate and on floor -> we'll try to kick towards them
-		if(global_position.y < Globals.player.global_position.y + radius and 
-			Globals.player.global_position.y - radius < global_position.y and was_on_floor):
-			state = GAME_STATE.COMBO_3
-			velocity = Vector2.ZERO
-			pass
-		# if within a certain radius of enemy, try to stomp them
-		elif(global_position.x < Globals.player.global_position.x + radius and 
-			 Globals.player.global_position.x - radius < global_position.x):
-			state = GAME_STATE.COMBO_1
-			velocity.x = 0
-			velocity.y = -jump_speed * 2
-			snap = Vector2.ZERO	
-			pass
-		# otherwise try a diagonal kick
-		elif(global_position.y < Globals.player.global_position.y + radius and 
-			 Globals.player.global_position.y - radius < global_position.y):
-			state = GAME_STATE.COMBO_2
-			velocity.x = 0
-			velocity.y = -jump_speed
-			snap = Vector2.ZERO	
-			pass
-		# otherwise move toward player
-		else:
-			velocity = Vector2.ZERO
-			move(dir, delta)
-	# if combo1, do a stomp
-	elif state == GAME_STATE.COMBO_1:		
-		# figure out how to extend hit box in a stomp formation
-		# slime should also fall faster than gravity
-		# current up speed is 2000 and then go down 2 * gravity
-		# this part is the fall down faster, the jump part is in idle
-		velocity.y += 2 * gravity * delta
-		snap = Vector2.ZERO	
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
-
-	# if combo2, do a jump then diagonal kick
-	elif state == GAME_STATE.COMBO_2:
-		# slime should also fall faster than gravity
-		# this part is the fall down faster, the jump part is in idle
-		velocity.x += dir.x  * 100
-		velocity.y += 0.5 * gravity * delta
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
-	# if combo3, do a kick across the ground
-	elif state == GAME_STATE.COMBO_3:
-		# just move in the x direction fast
-		velocity.x += dir.x * 200
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
-	"""
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta
 	process_movement(delta)
 
-func process_movement(delta):
+func process_movement(_delta):
 	if $FloorCast.is_colliding():
 		velocity.y = 0
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
 # action timer
 func _on_ActionTimer_timeout():
+	#Come up with better attack patterns
 	if state == GAME_STATE.IDLE:
 		
 		var allowed_actions = 1
-		if health <= 20:
+		if health <= floor(MAX_HEALTH / 3.0):
 			allowed_actions = 3
-		elif health <= 40:
+		elif health <= floor(MAX_HEALTH * 2 / 3.0):
 			allowed_actions = 2
 		
 		var choice = randi() % allowed_actions
@@ -240,9 +184,9 @@ func begin_kick():
 	$WindupTimer.start()
 func begin_air_kick():
 	state = GAME_STATE.AIR_KICK_WINDUP
-	var dir = 1
-	if rand_range(-1,1) >= 0:
-		dir = -1
+	# var dir = 1
+	# if rand_range(-1,1) >= 0:
+	# 	dir = -1
 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
 	$WindupTimer.start()
 		

@@ -11,6 +11,8 @@ const KICK_SPEED = 1300
 
 const STAGE_EDGE_X = 800
 const ATTACK_HEIGHT = 300
+const MAX_HEALTH = 30
+
 
 const radius = 50
 
@@ -36,7 +38,7 @@ var target_position = Vector2(0,0)
 var x_dir_to_player
 
 
-var health = 60
+var health = MAX_HEALTH
 
 
 # called on node beginning
@@ -49,11 +51,11 @@ func die():
 	queue_free()
 
 func hurt(damage=1):
-	health -= 1
+	health -= damage
 	print(health)
 	$ShakeTimer.start()
 	
-	if health == 20:
+	if health == MAX_HEALTH / 3:
 		#$WindupTimer.wait_time = 0.5
 		$ActionTimer.wait_time = 2
 	
@@ -67,13 +69,6 @@ func _on_HurtBox_body_exited(body):
 	var i = enemies_in_hurtbox.find(body)
 	if i > -1:
 		enemies_in_hurtbox.remove(i)
-
-"""
-func move(dir, delta):
-	velocity = dir * 100
-	if is_on_floor():
-		velocity.y = 0
-"""
 
 func face_player():
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
@@ -92,14 +87,13 @@ func _process(delta):
 	if global_position.y > 5000:
 		hurt()
 	
-	#was_on_floor = is_on_floor()
-	
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
-		$FireParticles.emitting = false
+		# Need particles for poof later
+		# $FireParticles.emitting = false
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -233,7 +227,7 @@ func _on_ActionTimer_timeout():
 # state transition functions
 func begin_stomp():
 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
-	state = GAME_STATE.STOMP_WINDUP
+d	state = GAME_STATE.STOMP_WINDUP
 	$WindupTimer.start()
 func begin_kick():
 	state = GAME_STATE.KICK_WINDUP
