@@ -87,7 +87,7 @@ script = ExtResource( 2 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 4
+frame = 2
 playing = true
 
 [node name="InvincibilityTimer" type="Timer" parent="."]

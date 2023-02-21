@@ -19,6 +19,8 @@ animations = [ {
 
 [node name="Slash" type="Area2D"]
 scale = Vector2( 0.4, 0.4 )
+collision_layer = 256
+collision_mask = 256
 script = ExtResource( 6 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
@@ -28,4 +30,5 @@ frames = SubResource( 1 )
 scale = Vector2( 25, 16 )
 shape = SubResource( 2 )
 
+[connection signal="body_entered" from="." to="." method="_on_Slash_body_entered"]
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]

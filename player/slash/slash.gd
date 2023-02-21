@@ -8,6 +8,8 @@ extends Area2D
 
 const OFFSET_AMOUNT = 125
 
+var hit = []
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$AnimatedSprite.play()
@@ -36,3 +38,11 @@ func init(offset_dir):
 func _on_AnimatedSprite_animation_finished():
 	queue_free()
 	pass # Replace with function body.
+
+
+func _on_Slash_body_entered(body):
+	if body in hit:
+		return
+	if "IS_ENEMY" in body:
+		body.hurt()
+		hit.append(body)

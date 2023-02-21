@@ -1,6 +1,8 @@
 extends KinematicBody2D
 
 
+const IS_ENEMY = true
+
 # == numbers to tweak == 
 const gravity = 3500
 const jump_speed = 300
@@ -11,6 +13,8 @@ const STAGE_EDGE_X = 800
 const ATTACK_HEIGHT = 300
 
 const radius = 50
+
+const shake_amount = 10
 # ========================
 
 # COMBO 1 = Falcon stomp
@@ -30,22 +34,27 @@ var target_position = Vector2(0,0)
 
 var x_dir_to_player
 
-#const AFTER_IMAGE = preload('res://AfterImage.tscn')
+
+var health = 60
+
 
 # called on node beginning
 func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
 
-func hurt(damage=1):
-	if is_invincible:
-		return
-	snap = Vector2.ZERO
-	# Globals.ui.health = max(Globals.ui.health - 1, 0)
-	# $HurtSound.play()
-	# $InvincibilityTimer.start()
-	is_invincible = true
 
+func die():
+	queue_free()
+
+func hurt(damage=1):
+	health -= 1
+	print(health)
+	$ShakeTimer.start()
+	
+	if health <= 0:
+		die()
+	
 func _on_InvincibilityTimer_timeout():
 	is_invincible = false
 func _on_InvincibilityFlashTimer_timeout():
@@ -72,6 +81,12 @@ func face_player():
 
 # called every frame
 func _process(delta):	
+	
+	if not $ShakeTimer.is_stopped():
+		$AnimatedSprite.offset = Vector2(rand_range(-shake_amount, shake_amount), rand_range(-shake_amount, shake_amount))
+	else:
+		$AnimatedSprite.offset = Vector2.ZERO
+	
 	# handles falling to their death
 	if global_position.y > 5000:
 		hurt()
@@ -100,8 +115,6 @@ func _process(delta):
 		
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick_windup")
-		face_player()
-		pass
 	elif state == GAME_STATE.KICK:
 		$AnimatedSprite.play("kick")
 		var kick_dir = sign(velocity.x)
@@ -196,7 +209,14 @@ func process_movement(delta):
 # action timer
 func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
-		var choice = randi()%3
+		
+		var allowed_actions = 1
+		if health <= 20:
+			allowed_actions = 3
+		elif health <= 40:
+			allowed_actions = 2
+		
+		var choice = randi() % allowed_actions
 		if choice == 0:
 			begin_stomp()	
 		elif choice == 1:
@@ -211,6 +231,7 @@ func begin_stomp():
 	$WindupTimer.start()
 func begin_kick():
 	state = GAME_STATE.KICK_WINDUP
+	face_player()
 	$WindupTimer.start()
 func begin_air_kick():
 	state = GAME_STATE.AIR_KICK_WINDUP
@@ -230,7 +251,6 @@ func _on_WindupTimer_timeout():
 		state = GAME_STATE.STOMP
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick")
-		
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
@@ -241,6 +261,3 @@ func _on_WindupTimer_timeout():
 		
 		state = GAME_STATE.AIR_KICK
 		
-		
-		
-	
