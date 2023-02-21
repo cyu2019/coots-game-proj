@@ -52,14 +52,12 @@ func hurt(damage=1):
 	print(health)
 	$ShakeTimer.start()
 	
+	if health == 20:
+		#$WindupTimer.wait_time = 0.5
+		$ActionTimer.wait_time = 2
+	
 	if health <= 0:
 		die()
-	
-func _on_InvincibilityTimer_timeout():
-	is_invincible = false
-func _on_InvincibilityFlashTimer_timeout():
-	if not is_invincible:
-		return
 	
 func _on_HurtBox_body_entered(body):
 	if not body in enemies_in_hurtbox:
@@ -69,10 +67,12 @@ func _on_HurtBox_body_exited(body):
 	if i > -1:
 		enemies_in_hurtbox.remove(i)
 
+"""
 func move(dir, delta):
 	velocity = dir * 100
 	if is_on_floor():
 		velocity.y = 0
+"""
 
 func face_player():
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
@@ -91,7 +91,6 @@ func _process(delta):
 	if global_position.y > 5000:
 		hurt()
 	
-	#squashy_stretch(delta)
 	#was_on_floor = is_on_floor()
 	
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
@@ -99,23 +98,25 @@ func _process(delta):
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
+		$FireParticles.emitting = false
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.STOMP_WINDUP:
-		
 		$AnimatedSprite.play("stomp_windup")
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.STOMP:
 		$AnimatedSprite.play("stomp")
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
-			Globals.camera.shake(400,0.3)
+			Globals.camera.shake(400,0.5)
 		process_movement_gravity(delta)
-		
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick_windup")
 	elif state == GAME_STATE.KICK:
+		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
+		$FireParticles.emitting = true
+		
 		$AnimatedSprite.play("kick")
 		var kick_dir = sign(velocity.x)
 		if kick_dir < 0 and global_position.x <= -STAGE_EDGE_X or kick_dir > 0 and global_position.x > STAGE_EDGE_X:
@@ -128,6 +129,9 @@ func _process(delta):
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.AIR_KICK:
 		$AnimatedSprite.play("air_kick")
+		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
+		$FireParticles.emitting = true
+		
 		if $FloorCast.is_colliding():
 			velocity.x = 0
 			state = GAME_STATE.LAND
@@ -135,6 +139,7 @@ func _process(delta):
 		process_movement(delta)
 		
 	elif state == GAME_STATE.LAND:
+		$FireParticles.emitting = false
 		$AnimatedSprite.play("land")
 		process_movement_gravity(delta)
 		
@@ -253,11 +258,12 @@ func _on_WindupTimer_timeout():
 		$AnimatedSprite.play("kick")
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
+		Globals.camera.shake(400,0.3)
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		var kick_dir = (Globals.player.global_position - global_position).normalized()
 		velocity = kick_dir * KICK_SPEED
 		if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
 			velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
-		
+		Globals.camera.shake(400,0.3)
 		state = GAME_STATE.AIR_KICK
 		

@@ -8,10 +8,10 @@ const SLASH_SCENE = preload("res://player/slash/slash.tscn")
 
 # == numbers to tweak == 
 const max_speed = 600 # How fast the player will move (pixels/sec).
-const acceleration = 200
+const acceleration = 300
 
-const gravity = 1600
-const jump_speed = 1100
+const gravity = 50
+const jump_speed = 1200
 var time_since_on_floor = 999
 const coyote_time = 0.1
 
@@ -82,7 +82,7 @@ func _on_HurtBox_body_exited(body):
 		enemies_in_hurtbox.remove(i)
 
 func squashy_stretch(delta):
-	$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, 0.3 - abs(velocity.x)/max_speed/50, delta*5)
+	#$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, 0.3 - abs(velocity.x)/max_speed/50, delta*5)
 	$AnimatedSprite.scale.x = lerp($AnimatedSprite.scale.x, 0.3 - abs(velocity.y)/max_speed/50, delta*5)
 	if is_on_floor() and not was_on_floor:
 		$AnimatedSprite.scale.y = 0.28
@@ -93,7 +93,7 @@ func _process(delta):
 	if global_position.y > 5000:
 		hurt()
 	
-	#squashy_stretch(delta)
+	squashy_stretch(delta)
 	was_on_floor = is_on_floor()
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
@@ -183,7 +183,8 @@ func process_movement(delta):
 	
 	velocity.x = sign(velocity.x) * min(max_speed, abs(velocity.x))
 	
-	velocity.y += gravity * delta
+	#velocity.y += gravity * delta
+	velocity.y += gravity
 
 	time_since_on_floor += delta
 	time_since_jump_pressed += delta
