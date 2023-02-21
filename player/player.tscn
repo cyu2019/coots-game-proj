@@ -37,35 +37,15 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 33 ), ExtResource( 34 ), ExtResource( 31 ), ExtResource( 32 ) ],
-"loop": false,
-"name": "attack_down",
-"speed": 15.0
-}, {
-"frames": [ ExtResource( 29 ), ExtResource( 28 ), ExtResource( 30 ), ExtResource( 27 ) ],
-"loop": false,
-"name": "attack_up",
-"speed": 15.0
-}, {
 "frames": [ ExtResource( 5 ), ExtResource( 6 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 11 ), ExtResource( 19 ) ],
 "loop": true,
 "name": "idle",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 12 ), ExtResource( 20 ), ExtResource( 13 ) ],
-"loop": true,
-"name": "fall",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 21 ), ExtResource( 16 ), ExtResource( 17 ) ],
-"loop": true,
-"name": "jump",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 15 ), ExtResource( 18 ), ExtResource( 22 ), ExtResource( 10 ), ExtResource( 14 ), ExtResource( 23 ) ],
-"loop": true,
-"name": "run",
-"speed": 10.0
+"frames": [ ExtResource( 33 ), ExtResource( 34 ), ExtResource( 31 ), ExtResource( 32 ) ],
+"loop": false,
+"name": "attack_down",
+"speed": 15.0
 }, {
 "frames": [ ExtResource( 15 ) ],
 "loop": true,
@@ -76,6 +56,26 @@ animations = [ {
 "loop": false,
 "name": "attack",
 "speed": 15.0
+}, {
+"frames": [ ExtResource( 15 ), ExtResource( 18 ), ExtResource( 22 ), ExtResource( 10 ), ExtResource( 14 ), ExtResource( 23 ) ],
+"loop": true,
+"name": "run",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 29 ), ExtResource( 28 ), ExtResource( 30 ), ExtResource( 27 ) ],
+"loop": false,
+"name": "attack_up",
+"speed": 15.0
+}, {
+"frames": [ ExtResource( 21 ), ExtResource( 16 ), ExtResource( 17 ) ],
+"loop": true,
+"name": "jump",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 12 ), ExtResource( 20 ), ExtResource( 13 ) ],
+"loop": true,
+"name": "fall",
+"speed": 10.0
 } ]
 
 [sub_resource type="RectangleShape2D" id=2]
@@ -87,12 +87,15 @@ script = ExtResource( 2 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 7
+frame = 4
 playing = true
 
 [node name="InvincibilityTimer" type="Timer" parent="."]
+one_shot = true
 
 [node name="InvincibilityFlashTimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
 
 [node name="DashTimer" type="Timer" parent="."]
 wait_time = 0.3
@@ -111,6 +114,10 @@ current = true
 smoothing_enabled = true
 script = ExtResource( 3 )
 
+[node name="Timer" type="Timer" parent="Camera2D"]
+
+[node name="Tween" type="Tween" parent="Camera2D"]
+
 [node name="HurtBox" type="Area2D" parent="."]
 collision_layer = 256
 collision_mask = 256
@@ -124,5 +131,6 @@ shape = SubResource( 2 )
 [connection signal="timeout" from="InvincibilityFlashTimer" to="." method="_on_InvincibilityFlashTimer_timeout"]
 [connection signal="timeout" from="DashTimer" to="." method="_on_DashTimer_timeout"]
 [connection signal="timeout" from="DashCooldownTimer" to="." method="_on_DashCooldownTimer_timeout"]
+[connection signal="timeout" from="Camera2D/Timer" to="Camera2D" method="_on_Timer_timeout"]
 [connection signal="body_entered" from="HurtBox" to="." method="_on_HurtBox_body_entered"]
 [connection signal="body_exited" from="HurtBox" to="." method="_on_HurtBox_body_exited"]

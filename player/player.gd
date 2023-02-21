@@ -50,13 +50,12 @@ func jump_cut():
 		velocity.y /= 2
 
 func hurt(_damage=1):
-	if is_invincible or state == GAME_STATE.DASH or Globals.ui.won:
+	if is_invincible or state == GAME_STATE.DASH:
 		return
-	
 	snap = Vector2.ZERO
 	$Camera2D.shake(400, 0.3)
-	Globals.ui.health = max(Globals.ui.health - 1, 0)
-	$HurtSound.play()
+	#Globals.ui.health = max(Globals.ui.health - 1, 0)
+	#$HurtSound.play()
 	$InvincibilityTimer.start()
 	is_invincible = true
 	$AnimatedSprite.modulate.a = 0.5
@@ -76,6 +75,7 @@ func _on_InvincibilityFlashTimer_timeout():
 func _on_HurtBox_body_entered(body):
 	if not body in enemies_in_hurtbox:
 		enemies_in_hurtbox.append(body)
+		
 func _on_HurtBox_body_exited(body):
 	var i = enemies_in_hurtbox.find(body)
 	if i > -1:

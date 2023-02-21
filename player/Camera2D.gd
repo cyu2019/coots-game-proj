@@ -1,7 +1,6 @@
 #https://github.com/ACB-prgm/Godot_Camera/blob/main/camera/Camera2D.gd
 extends Camera2D
 
-
 onready var shakeTimer = $Timer
 onready var tween = $Tween
 
