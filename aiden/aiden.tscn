@@ -25,7 +25,7 @@
 [ext_resource path="res://aiden/sprites/needle-charging-air/aiden-needle-charging-air0000.png" type="Texture" id=23]
 [ext_resource path="res://aiden/sprites/needle-throw-air/aiden-needle-throw-air0000.png" type="Texture" id=24]
 [ext_resource path="res://aiden/sprites/needle-throw-air/aiden-needle-throw-air0001.png" type="Texture" id=25]
-[ext_resource path="res://slime/slime.gd" type="Script" id=27]
+[ext_resource path="res://aiden/aiden.gd" type="Script" id=26]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -35,42 +35,42 @@ animations = [ {
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 18 ), ExtResource( 22 ), ExtResource( 17 ), ExtResource( 19 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_charge",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 23 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 15 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_charge_air",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 12 ), ExtResource( 21 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_throw",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 13 ), ExtResource( 14 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_throw_air",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 24 ), ExtResource( 25 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_throw_air_windup",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 20 ), ExtResource( 16 ) ],
-"loop": true,
+"loop": false,
 "name": "needle_throw_windup",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 5 ), ExtResource( 4 ) ],
-"loop": true,
+"loop": false,
 "name": "poof",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 2 ), ExtResource( 8 ), ExtResource( 7 ) ],
-"loop": true,
+"loop": false,
 "name": "poof_windup",
 "speed": 10.0
 } ]
@@ -80,17 +80,15 @@ animations = [ {
 [node name="aiden" type="KinematicBody2D"]
 collision_layer = 256
 collision_mask = 256
-script = ExtResource( 27 )
+script = ExtResource( 26 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 scale = Vector2( 0.503495, 0.485587 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( -3, 15 )
 scale = Vector2( 5, 9 )
 shape = SubResource( 2 )
 

@@ -9,7 +9,11 @@ const jump_speed = 300
 
 const KICK_SPEED = 1300
 
-const STAGE_EDGE_X = 800
+const bl_corner = Vector2(-400, -50)
+const br_corner = Vector2(400, -50)
+const tr_corner = Vector2(400, -400)
+const tl_corner = Vector2(-400, -400)
+
 const ATTACK_HEIGHT = 300
 const MAX_HEALTH = 30
 
@@ -23,7 +27,9 @@ enum GAME_STATE {IDLE,
 				 POOF_WINDUP, POOF, 
 				 NEEDLE_THROW_WINDUP, NEEDLE_THROW, 
 				 NEEDLE_THROW_AIR_WINDUP, NEEDLE_THROW_AIR,
-				 NEEDLE_CHARGE_WINDUP, NEEDLE_CHARGE}
+				 NEEDLE_CHARGE_WINDUP, NEEDLE_CHARGE,
+				 NEEDLE_CHARGE_AIR_WINDUP, NEEDLE_CHARGE_AIR,
+				 LAND}
 var state = GAME_STATE.IDLE
 
 var velocity
@@ -50,12 +56,12 @@ func _ready():
 func die():
 	queue_free()
 
-func hurt(damage=1):
+func hurt(damage = 1):
 	health -= damage
 	print(health)
 	$ShakeTimer.start()
 	
-	if health == MAX_HEALTH / 3:
+	if health == floor(MAX_HEALTH / 3.0):
 		#$WindupTimer.wait_time = 0.5
 		$ActionTimer.wait_time = 2
 	
@@ -76,6 +82,10 @@ func face_player():
 	$AnimatedSprite.flip_h = true if dir_to_player.x < 0 else false
 
 # called every frame
+"""
+Main Idea:
+Aiden will teleport around the stage, throw needles, then reset to the ground (if he ends up teleporting to the air)
+"""
 func _process(delta):	
 	
 	if not $ShakeTimer.is_stopped():
@@ -97,6 +107,34 @@ func _process(delta):
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
+	elif state == GAME_STATE.POOF_WINDUP:
+		$AnimatedSprite.play("poof_windup")
+	elif state == GAME_STATE.POOF:
+		$AnimatedSprite.play("poof")
+		global_position = target_position
+		if $FloorCast.is_colliding():
+			state = GAME_STATE.LAND
+		process_movement_gravity(delta)
+	# elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
+	# 	$AnimatedSprite.play("needle_throw_windup")
+	# elif state == GAME_STATE.NEEDLE_THROW:
+	# 	$AnimatedSprite.play("needle_throw")
+	# elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
+	# 	$AnimatedSprite.play("needle_throw_air_windup")
+	# elif state == GAME_STATE.NEEDLE_THROW_AIR:
+	# 	$AnimatedSprite.play("needle_throw_air")
+	# elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
+	# 	$AnimatedSprite.play("needle_charge_windup")
+	# elif state == GAME_STATE.NEEDLE_CHARGE:
+	# 	$AnimatedSprite.play("needle_charge")
+	# elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
+	# 	$AnimatedSprite.play("needle_charge_air_windup")
+	# elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
+	# 	$AnimatedSprite.play("needle_charge_air")
+	elif state == GAME_STATE.LAND:
+		$AnimatedSprite.play("idle")
+		process_movement_gravity(delta)
+	"""
 	elif state == GAME_STATE.STOMP_WINDUP:
 		$AnimatedSprite.play("stomp_windup")
 		global_position = lerp(global_position, target_position, delta * 5)
@@ -109,8 +147,8 @@ func _process(delta):
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick_windup")
 	elif state == GAME_STATE.KICK:
-		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
-		$FireParticles.emitting = true
+		# $FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
+		# $FireParticles.emitting = true
 		
 		$AnimatedSprite.play("kick")
 		var kick_dir = sign(velocity.x)
@@ -124,8 +162,8 @@ func _process(delta):
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.AIR_KICK:
 		$AnimatedSprite.play("air_kick")
-		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
-		$FireParticles.emitting = true
+		# $FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
+		# $FireParticles.emitting = true
 		
 		if $FloorCast.is_colliding():
 			velocity.x = 0
@@ -134,67 +172,9 @@ func _process(delta):
 		process_movement(delta)
 		
 	elif state == GAME_STATE.LAND:
-		$FireParticles.emitting = false
+		# $FireParticles.emitting = false
 		$AnimatedSprite.play("land")
 		process_movement_gravity(delta)
-		
-	"""
-	# if idle, make a choice on which of the three combos to use
-	if state == GAME_STATE.IDLE:
-		# Same y coordinate and on floor -> we'll try to kick towards them
-		if(global_position.y < Globals.player.global_position.y + radius and 
-			Globals.player.global_position.y - radius < global_position.y and was_on_floor):
-			state = GAME_STATE.COMBO_3
-			velocity = Vector2.ZERO
-			pass
-		# if within a certain radius of enemy, try to stomp them
-		elif(global_position.x < Globals.player.global_position.x + radius and 
-			 Globals.player.global_position.x - radius < global_position.x):
-			state = GAME_STATE.COMBO_1
-			velocity.x = 0
-			velocity.y = -jump_speed * 2
-			snap = Vector2.ZERO	
-			pass
-		# otherwise try a diagonal kick
-		elif(global_position.y < Globals.player.global_position.y + radius and 
-			 Globals.player.global_position.y - radius < global_position.y):
-			state = GAME_STATE.COMBO_2
-			velocity.x = 0
-			velocity.y = -jump_speed
-			snap = Vector2.ZERO	
-			pass
-		# otherwise move toward player
-		else:
-			velocity = Vector2.ZERO
-			move(dir, delta)
-	# if combo1, do a stomp
-	elif state == GAME_STATE.COMBO_1:		
-		# figure out how to extend hit box in a stomp formation
-		# slime should also fall faster than gravity
-		# current up speed is 2000 and then go down 2 * gravity
-		# this part is the fall down faster, the jump part is in idle
-		velocity.y += 2 * gravity * delta
-		snap = Vector2.ZERO	
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
-
-	# if combo2, do a jump then diagonal kick
-	elif state == GAME_STATE.COMBO_2:
-		# slime should also fall faster than gravity
-		# this part is the fall down faster, the jump part is in idle
-		velocity.x += dir.x  * 100
-		velocity.y += 0.5 * gravity * delta
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
-	# if combo3, do a kick across the ground
-	elif state == GAME_STATE.COMBO_3:
-		# just move in the x direction fast
-		velocity.x += dir.x * 200
-		if(was_on_floor):
-			state = GAME_STATE.IDLE
-		pass
 	"""
 	
 func process_movement_gravity(delta):
@@ -209,56 +189,86 @@ func process_movement(delta):
 # action timer
 func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
-		
-		var allowed_actions = 1
-		if health <= 20:
-			allowed_actions = 3
-		elif health <= 40:
-			allowed_actions = 2
-		
-		var choice = randi() % allowed_actions
+		var choice = randi() % 4
+		# At the moment, these corners are fixed position
+		# Maybe make it a random fixed distance from the player?
+		# poof to bottom left corner, then throw needle at player
 		if choice == 0:
-			begin_stomp()	
+			begin_poof(bl_corner)
+		# poof to bottom right corner, then throw needle at player
 		elif choice == 1:
-			begin_kick()
+			begin_poof(br_corner)
+		# poof to top right corner, then throw needle at player
+		elif choice == 2:
+			begin_poof(tr_corner)
+		# poof to top left corner, then throw needle at player
 		else:
-			begin_air_kick()
+			begin_poof(tl_corner)
 
 # state transition functions
-func begin_stomp():
-	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
-d	state = GAME_STATE.STOMP_WINDUP
+func begin_poof(position):
+	state = GAME_STATE.POOF_WINDUP
+	target_position = position
 	$WindupTimer.start()
-func begin_kick():
-	state = GAME_STATE.KICK_WINDUP
-	face_player()
+
+func begin_needle_charge():
+	state = GAME_STATE.NEEDLE_CHARGE_WINDUP
 	$WindupTimer.start()
-func begin_air_kick():
-	state = GAME_STATE.AIR_KICK_WINDUP
-	var dir = 1
-	if rand_range(-1,1) >= 0:
-		dir = -1
-	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
+
+func begin_needle_air_charge():
+	state = GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP
 	$WindupTimer.start()
+
+func begin_needle_throw():
+	state = GAME_STATE.NEEDLE_THROW_WINDUP
+	$WindupTimer.start()
+
+func begin_needle_air_throw():
+	state = GAME_STATE.NEEDLE_THROW_AIR_WINDUP
+	$WindupTimer.start()
+
+# func begin_stomp():
+# 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
+# 	state = GAME_STATE.STOMP_WINDUP
+# 	$WindupTimer.start()
+# func begin_kick():
+# 	state = GAME_STATE.KICK_WINDUP
+# 	face_player()
+# 	$WindupTimer.start()
+# func begin_air_kick():
+# 	state = GAME_STATE.AIR_KICK_WINDUP
+# 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
+# 	$WindupTimer.start()
 		
 # event handlers for state transitions
 func _on_AnimatedSprite_animation_finished():
-	if $AnimatedSprite.animation == "land" and state == GAME_STATE.LAND:
+	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:
 		state = GAME_STATE.IDLE
 
 func _on_WindupTimer_timeout():
-	if state == GAME_STATE.STOMP_WINDUP:
-		state = GAME_STATE.STOMP
-	elif state == GAME_STATE.KICK_WINDUP:
-		$AnimatedSprite.play("kick")
-		velocity.x = x_dir_to_player * KICK_SPEED
-		state = GAME_STATE.KICK
-		Globals.camera.shake(400,0.3)
-	elif state == GAME_STATE.AIR_KICK_WINDUP:
-		var kick_dir = (Globals.player.global_position - global_position).normalized()
-		velocity = kick_dir * KICK_SPEED
-		if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
-			velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
-		Globals.camera.shake(400,0.3)
-		state = GAME_STATE.AIR_KICK
+	if state == GAME_STATE.POOF_WINDUP:
+		state = GAME_STATE.POOF
+	elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
+		state = GAME_STATE.NEEDLE_THROW
+	elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
+		state = GAME_STATE.NEEDLE_THROW_AIR
+	elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
+		state = GAME_STATE.NEEDLE_CHARGE
+	elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
+		state = GAME_STATE.NEEDLE_CHARGE_AIR
+
+	# if state == GAME_STATE.STOMP_WINDUP:
+	# 	state = GAME_STATE.STOMP
+	# elif state == GAME_STATE.KICK_WINDUP:
+	# 	$AnimatedSprite.play("kick")
+	# 	velocity.x = x_dir_to_player * KICK_SPEED
+	# 	state = GAME_STATE.KICK
+	# 	Globals.camera.shake(400,0.3)
+	# elif state == GAME_STATE.AIR_KICK_WINDUP:
+	# 	var kick_dir = (Globals.player.global_position - global_position).normalized()
+	# 	velocity = kick_dir * KICK_SPEED
+	# 	if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
+	# 		velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
+	# 	Globals.camera.shake(400,0.3)
+	# 	state = GAME_STATE.AIR_KICK
 		
