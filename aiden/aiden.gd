@@ -17,11 +17,14 @@ const tl_corner = Vector2(-400, -400)
 const ATTACK_HEIGHT = 300
 const MAX_HEALTH = 30
 
+const MAX_NEEDLES = 3
 
 const radius = 50
 
 const shake_amount = 10
 # ========================
+
+export(PackedScene) var NEEDLE = preload("res://aiden/needle.tscn")
 
 enum GAME_STATE {IDLE, 
 				 POOF_WINDUP, POOF, 
@@ -35,6 +38,8 @@ var state = GAME_STATE.IDLE
 var velocity
 var snap
 var was_on_floor = true
+
+var num_needles = 0
 
 var enemies_in_hurtbox = []
 var is_invincible = false
@@ -104,6 +109,7 @@ func _process(delta):
 	if state == GAME_STATE.IDLE:
 		# Need particles for poof later
 		# $FireParticles.emitting = false
+		num_needles = 0
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -111,26 +117,52 @@ func _process(delta):
 		$AnimatedSprite.play("poof_windup")
 	elif state == GAME_STATE.POOF:
 		$AnimatedSprite.play("poof")
+		# move to the position
 		global_position = target_position
+		# face the player
+		face_player()
+		# change to needle state, this one is in the air
+		if global_position.y < -100:
+			begin_needle_air_charge()
+		# otherwise we're on the ground
+		else:
+			begin_needle_charge()
+
+		# debugging
+		# if $FloorCast.is_colliding():
+		# 	state = GAME_STATE.LAND
+		# process_movement_gravity(delta)
+	elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
+		$AnimatedSprite.play("needle_throw_windup")
+	elif state == GAME_STATE.NEEDLE_THROW:
+		$AnimatedSprite.play("needle_throw")
+		if(num_needles < MAX_NEEDLES):
+			throw_needle()
+			num_needles += 1
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
-	# elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
-	# 	$AnimatedSprite.play("needle_throw_windup")
-	# elif state == GAME_STATE.NEEDLE_THROW:
-	# 	$AnimatedSprite.play("needle_throw")
-	# elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
-	# 	$AnimatedSprite.play("needle_throw_air_windup")
-	# elif state == GAME_STATE.NEEDLE_THROW_AIR:
-	# 	$AnimatedSprite.play("needle_throw_air")
-	# elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
-	# 	$AnimatedSprite.play("needle_charge_windup")
-	# elif state == GAME_STATE.NEEDLE_CHARGE:
-	# 	$AnimatedSprite.play("needle_charge")
-	# elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
-	# 	$AnimatedSprite.play("needle_charge_air_windup")
-	# elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
-	# 	$AnimatedSprite.play("needle_charge_air")
+	elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
+		$AnimatedSprite.play("needle_charge_windup")
+	elif state == GAME_STATE.NEEDLE_CHARGE:
+		$AnimatedSprite.play("needle_charge")
+		state = GAME_STATE.NEEDLE_THROW_WINDUP
+
+	elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
+		$AnimatedSprite.play("needle_throw_air_windup")
+	elif state == GAME_STATE.NEEDLE_THROW_AIR:
+		$AnimatedSprite.play("needle_throw_air")
+		if(num_needles < MAX_NEEDLES):
+			throw_needle()
+			num_needles += 1
+		if $FloorCast.is_colliding():
+			state = GAME_STATE.LAND
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
+		$AnimatedSprite.play("needle_charge_air_windup")
+	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
+		$AnimatedSprite.play("needle_charge_air")
+		state = GAME_STATE.NEEDLE_THROW_AIR_WINDUP
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -192,6 +224,7 @@ func _on_ActionTimer_timeout():
 		var choice = randi() % 4
 		# At the moment, these corners are fixed position
 		# Maybe make it a random fixed distance from the player?
+
 		# poof to bottom left corner, then throw needle at player
 		if choice == 0:
 			begin_poof(bl_corner)
@@ -226,6 +259,19 @@ func begin_needle_throw():
 func begin_needle_air_throw():
 	state = GAME_STATE.NEEDLE_THROW_AIR_WINDUP
 	$WindupTimer.start()
+
+func throw_needle():
+	var needle = NEEDLE.instance()
+	# print(get_tree().current_scene)
+	get_tree().current_scene.add_child(needle)
+	var dir_to_player = (Globals.player.global_position - global_position).normalized()
+	needle.global_position = self.global_position + dir_to_player * 300
+	needle.rotation = dir_to_player.angle()
+	needle.dir = dir_to_player
+	# print("direction")
+	# print(dir_to_player)
+	# print(needle.dir)
+	# print(needle.global_position)
 
 # func begin_stomp():
 # 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)

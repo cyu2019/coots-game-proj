@@ -18,6 +18,10 @@ config/icon="res://icon.png"
 
 Globals="*res://common/Globals.gd"
 
+[global]
+
+display=false
+
 [input]
 
 move_right={

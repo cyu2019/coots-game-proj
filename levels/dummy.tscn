@@ -6,7 +6,8 @@
 
 [sub_resource type="RectangleShape2D" id=1]
 
-[node name="Node2D" type="Node2D"]
+[node name="dummy" type="Node2D"]
+light_mask = 0
 
 [node name="player" parent="." instance=ExtResource( 1 )]
 
@@ -15,9 +16,6 @@ position = Vector2( -3, 101 )
 scale = Vector2( 50, 1 )
 collision_layer = 257
 collision_mask = 257
-__meta__ = {
-"_edit_group_": true
-}
 
 [node name="Sprite" type="Sprite" parent="StaticBody2D"]
 modulate = Color( 0, 0, 0, 1 )
