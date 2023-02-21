@@ -1,0 +1,26 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://player/slash-impacts/SlashImpact.gd" type="Script" id=1]
+[ext_resource path="res://player/slash-impacts/cross-impact-sprites/slash-impact-20000.png" type="Texture" id=2]
+[ext_resource path="res://player/slash-impacts/cross-impact-sprites/slash-impact-20003.png" type="Texture" id=3]
+[ext_resource path="res://player/slash-impacts/cross-impact-sprites/slash-impact-20002.png" type="Texture" id=4]
+[ext_resource path="res://player/slash-impacts/cross-impact-sprites/slash-impact-20001.png" type="Texture" id=5]
+
+[sub_resource type="CanvasItemMaterial" id=2]
+blend_mode = 1
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 4 ), ExtResource( 3 ) ],
+"loop": false,
+"name": "default",
+"speed": 20.0
+} ]
+
+[node name="CrossImpact" type="AnimatedSprite"]
+material = SubResource( 2 )
+scale = Vector2( 0.8, 0.8 )
+frames = SubResource( 1 )
+script = ExtResource( 1 )
+
+[connection signal="animation_finished" from="." to="." method="_on_straightimpact_animation_finished"]

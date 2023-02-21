@@ -111,6 +111,8 @@ angle_curve = SubResource( 5 )
 scale = 0.5
 scale_random = 0.5
 scale_curve = SubResource( 7 )
+hue_variation = 0.1
+hue_variation_random = 0.25
 
 [node name="slime" type="KinematicBody2D"]
 collision_layer = 256
@@ -145,6 +147,7 @@ one_shot = true
 
 [node name="FireParticles" type="Particles2D" parent="."]
 material = SubResource( 3 )
+position = Vector2( -1, 33 )
 emitting = false
 amount = 32
 speed_scale = 1.5

@@ -5,10 +5,14 @@ extends Area2D
 # var a = 2
 # var b = "text"
 
+const STRAIGHT_IMPACT_SCENE = preload("res://player/slash-impacts/straight_impact.tscn")
+const CROSS_IMPACT_SCENE = preload("res://player/slash-impacts/cross_impact.tscn")
 
+const PUSHBACK = Vector2(15000, 500)
 const OFFSET_AMOUNT = 125
 
 var hit = []
+var hit_dir
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -16,7 +20,7 @@ func _ready():
 	pass # Replace with function body.
 
 """
-#unused, if we want slash to not be stuck to the player
+#unused, if we want slash to not be stuck to  the player
 func init(pos, offset_dir):
 	global_position = pos + offset_dir * OFFSET_AMOUNT
 	var angle = Vector2.RIGHT.angle_to(offset_dir) 
@@ -26,6 +30,7 @@ func init(pos, offset_dir):
 	
 func init(offset_dir):
 	transform.origin = offset_dir * OFFSET_AMOUNT
+	hit_dir = offset_dir
 	var angle = Vector2.RIGHT.angle_to(offset_dir) 
 	$AnimatedSprite.rotation = angle
 	$CollisionShape2D.rotation = angle
@@ -45,4 +50,14 @@ func _on_Slash_body_entered(body):
 		return
 	if "IS_ENEMY" in body:
 		body.hurt()
+		var impact1 = STRAIGHT_IMPACT_SCENE.instance()
+		var impact2 = CROSS_IMPACT_SCENE.instance()
+		impact1.global_position = body.global_position
+		impact2.global_position = body.global_position
+		impact1.rotation = $AnimatedSprite.rotation + rand_range(-0.5,0.5)
+		impact2.rotation = $AnimatedSprite.rotation + PI/2 + rand_range(-0.5,0.5)
+		get_tree().get_root().add_child(impact1)
+		get_tree().get_root().add_child(impact2)
+		
 		hit.append(body)
+		get_parent().velocity = PUSHBACK * -hit_dir 

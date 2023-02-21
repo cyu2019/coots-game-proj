@@ -7,8 +7,8 @@ const IS_PLAYER = true
 const SLASH_SCENE = preload("res://player/slash/slash.tscn")
 
 # == numbers to tweak == 
-const max_speed = 600 # How fast the player will move (pixels/sec).
-const acceleration = 300
+const max_speed = 700 # How fast the player will move (pixels/sec).
+const acceleration = 350
 
 const gravity = 50
 const jump_speed = 1200
@@ -29,8 +29,10 @@ var can_dash = true
 
 var velocity
 var snap
+var should_flip = false
 var was_on_floor = true
 
+const initial_sprite_scale = 0.3
 
 var enemies_in_hurtbox = []
 var is_invincible = false
@@ -42,6 +44,7 @@ var is_invincible = false
 func _ready():
 	Globals.player = self
 	velocity = Vector2.ZERO
+	
 
 
 # the way we currently get variable jump heights is to cut the jump speed when the player releases the jump button.
@@ -82,10 +85,20 @@ func _on_HurtBox_body_exited(body):
 		enemies_in_hurtbox.remove(i)
 
 func squashy_stretch(delta):
-	#$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, 0.3 - abs(velocity.x)/max_speed/50, delta*5)
-	$AnimatedSprite.scale.x = lerp($AnimatedSprite.scale.x, 0.3 - abs(velocity.y)/max_speed/50, delta*5)
+	#https://www.youtube.com/watch?v=iJx6uKqufJo
+	
+	if not is_on_floor() or state == GAME_STATE.DASH:
+		$AnimatedSprite.scale.y = range_lerp(abs(velocity.y), 0, abs(jump_speed), 0.9, 1.3) * initial_sprite_scale
+		$AnimatedSprite.scale.x = range_lerp(abs(velocity.y), 0, abs(jump_speed), 1.1, 0.9) * initial_sprite_scale
+	
+	
 	if is_on_floor() and not was_on_floor:
-		$AnimatedSprite.scale.y = 0.28
+		$AnimatedSprite.scale.y = range_lerp(abs(velocity.y), 0, abs(1700), 0.8, 0.6) * initial_sprite_scale
+		$AnimatedSprite.scale.x = range_lerp(abs(velocity.y), 0, abs(1700), 1.1, 1.4) * initial_sprite_scale
+	was_on_floor = is_on_floor()
+	
+	$AnimatedSprite.scale.x = lerp($AnimatedSprite.scale.x, initial_sprite_scale, 1 - pow(0.01, delta))
+	$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, initial_sprite_scale, 1 - pow(0.01, delta))
 
 # called every frame
 func _process(delta):	
@@ -94,7 +107,6 @@ func _process(delta):
 		hurt()
 	
 	squashy_stretch(delta)
-	was_on_floor = is_on_floor()
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
@@ -162,7 +174,6 @@ func spawn_slash():
 	elif $AnimatedSprite.animation == "attack_down":
 		offset_dir = Vector2(0, 1)
 		
-		
 	var slash = SLASH_SCENE.instance()
 	slash.init(offset_dir)
 	#slash.init(global_position, offset_dir)
@@ -175,9 +186,13 @@ func process_movement(delta):
 	var on_floor = is_on_floor()
 	
 	if Input.is_action_pressed("move_right"):
+		
 		velocity.x += acceleration
+		
+		should_flip = false
 	elif Input.is_action_pressed("move_left"):
 		velocity.x -= acceleration
+		should_flip = true
 	else:
 		velocity.x += -sign(velocity.x) * acceleration
 	
@@ -210,10 +225,7 @@ func process_movement(delta):
 		jump_cut()
 
 	if state == GAME_STATE.MOVEMENT:
-		if velocity.x < 0:
-			$AnimatedSprite.flip_h = true
-		elif velocity.x > 0:
-			$AnimatedSprite.flip_h = false
+		$AnimatedSprite.flip_h = should_flip
 
 		if velocity.y > 0:
 			$AnimatedSprite.play("fall")

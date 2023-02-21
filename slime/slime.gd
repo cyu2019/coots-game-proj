@@ -1,16 +1,16 @@
 extends KinematicBody2D
 
-
 const IS_ENEMY = true
+const LAND_PARTICLES_SCENE = preload("res://particles/LandParticles.tscn")
 
 # == numbers to tweak == 
 const gravity = 3500
 const jump_speed = 300
 
-const KICK_SPEED = 1300
+var KICK_SPEED = 1300
 
 const STAGE_EDGE_X = 800
-const ATTACK_HEIGHT = 300
+const ATTACK_HEIGHT = 400
 
 const radius = 50
 
@@ -34,7 +34,7 @@ var target_position = Vector2(0,0)
 
 var x_dir_to_player
 
-
+var base_color = Color.white
 var health = 60
 
 
@@ -50,11 +50,23 @@ func die():
 func hurt(damage=1):
 	health -= 1
 	print(health)
+	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
+	Globals.camera.shake(200,0.2)
 	
-	if health == 20:
-		#$WindupTimer.wait_time = 0.5
-		$ActionTimer.wait_time = 2
+	# phase
+	if health == 30:
+		$WindupTimer.wait_time = 0.8
+		$ActionTimer.wait_time = 1
+		KICK_SPEED = 1600
+		base_color = Color.orange
+		
+		
+	if health == 10:
+		$ActionTimer.wait_time = 0.5
+		KICK_SPEED = 1800
+		base_color = Color.orangered
+
 	
 	if health <= 0:
 		die()
@@ -76,11 +88,12 @@ func move(dir, delta):
 
 func face_player():
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	x_dir_to_player = dir_to_player.x if dir_to_player.x != 0 else 1
+	x_dir_to_player = sign(dir_to_player.x) if dir_to_player.x != 0 else 1
 	$AnimatedSprite.flip_h = true if dir_to_player.x < 0 else false
 
 # called every frame
 func _process(delta):	
+	$AnimatedSprite.modulate = $AnimatedSprite.modulate.linear_interpolate(base_color, delta * 20)
 	
 	if not $ShakeTimer.is_stopped():
 		$AnimatedSprite.offset = Vector2(rand_range(-shake_amount, shake_amount), rand_range(-shake_amount, shake_amount))
@@ -110,6 +123,10 @@ func _process(delta):
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 			Globals.camera.shake(400,0.5)
+			
+			var particles = LAND_PARTICLES_SCENE.instance()
+			particles.global_position = global_position + Vector2.DOWN * 80
+			get_tree().get_root().add_child(particles)
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick_windup")
@@ -135,6 +152,11 @@ func _process(delta):
 		if $FloorCast.is_colliding():
 			velocity.x = 0
 			state = GAME_STATE.LAND
+			
+			var particles = LAND_PARTICLES_SCENE.instance()
+			particles.global_position = global_position + Vector2.DOWN * 80
+			get_tree().get_root().add_child(particles)
+			
 			Globals.camera.shake(400,0.3)
 		process_movement(delta)
 		
@@ -216,10 +238,11 @@ func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
 		
 		var allowed_actions = 1
-		if health <= 20:
+		if health <= 30:
 			allowed_actions = 3
 		elif health <= 40:
 			allowed_actions = 2
+		
 		
 		var choice = randi() % allowed_actions
 		if choice == 0:
@@ -255,7 +278,6 @@ func _on_WindupTimer_timeout():
 	if state == GAME_STATE.STOMP_WINDUP:
 		state = GAME_STATE.STOMP
 	elif state == GAME_STATE.KICK_WINDUP:
-		$AnimatedSprite.play("kick")
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
 		Globals.camera.shake(400,0.3)

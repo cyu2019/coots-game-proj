@@ -84,17 +84,18 @@ animations = [ {
 script = ExtResource( 2 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+position = Vector2( 0, 75 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 2
 playing = true
+offset = Vector2( 0, -250 )
 
 [node name="InvincibilityTimer" type="Timer" parent="."]
 one_shot = true
 
 [node name="InvincibilityFlashTimer" type="Timer" parent="."]
-wait_time = 0.5
+wait_time = 0.1
 autostart = true
 
 [node name="DashTimer" type="Timer" parent="."]
@@ -110,6 +111,8 @@ scale = Vector2( 2, 6.5 )
 shape = SubResource( 2 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
+pause_mode = 2
+offset = Vector2( 0, -70 )
 current = true
 smoothing_enabled = true
 script = ExtResource( 3 )
