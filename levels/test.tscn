@@ -28,4 +28,4 @@ scale = Vector2( 3.2, 3 )
 shape = SubResource( 1 )
 
 [node name="slime" parent="." instance=ExtResource( 3 )]
-position = Vector2( -604, -45 )
+position = Vector2( -500, -40 )
