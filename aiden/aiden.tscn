@@ -95,7 +95,8 @@ script = ExtResource( 26 )
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 scale = Vector2( 0.503495, 0.485587 )
 frames = SubResource( 1 )
-animation = "idle"
+animation = "poof"
+frame = 1
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -107,6 +108,7 @@ wait_time = 3.0
 autostart = true
 
 [node name="WindupTimer" type="Timer" parent="."]
+wait_time = 0.2
 
 [node name="FloorCast" type="RayCast2D" parent="."]
 enabled = true
