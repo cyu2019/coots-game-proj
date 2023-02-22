@@ -43,8 +43,6 @@ var target_position = Vector2(0,0)
 var x_dir_to_player
 
 var base_color = Color.white
-var health = 60
-
 
 var health = MAX_HEALTH
 

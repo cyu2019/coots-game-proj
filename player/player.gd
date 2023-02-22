@@ -5,13 +5,14 @@ const IS_PLAYER = true
 
 
 const SLASH_SCENE = preload("res://player/slash/slash.tscn")
+const POOF_SCENE = preload("res://player/poof/poof.tscn")
 
 # == numbers to tweak == 
-const max_speed = 700 # How fast the player will move (pixels/sec).
-const acceleration = 350
+const max_speed = 800 # How fast the player will move (pixels/sec).
+const acceleration = 400
 
 const gravity = 50
-const jump_speed = 2000
+const jump_speed = 1300
 var time_since_on_floor = 999
 const coyote_time = 0.1
 
@@ -95,7 +96,6 @@ func squashy_stretch(delta):
 	if is_on_floor() and not was_on_floor:
 		$AnimatedSprite.scale.y = range_lerp(abs(velocity.y), 0, abs(1700), 0.8, 0.6) * initial_sprite_scale
 		$AnimatedSprite.scale.x = range_lerp(abs(velocity.y), 0, abs(1700), 1.1, 1.4) * initial_sprite_scale
-	was_on_floor = is_on_floor()
 	
 	$AnimatedSprite.scale.x = lerp($AnimatedSprite.scale.x, initial_sprite_scale, 1 - pow(0.01, delta))
 	$AnimatedSprite.scale.y = lerp($AnimatedSprite.scale.y, initial_sprite_scale, 1 - pow(0.01, delta))
@@ -143,7 +143,8 @@ func _process(delta):
 			is_dashing = false
 		"""
 		pass
-		
+	
+	was_on_floor = is_on_floor()
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
 func dash():
@@ -187,10 +188,22 @@ func process_movement(delta):
 	
 	if Input.is_action_pressed("move_right"):
 		
+		if velocity.x == 0 and is_on_floor() or is_on_floor() and not was_on_floor:
+			var poof = POOF_SCENE.instance()
+			poof.global_position = global_position
+			poof.flip_h = true
+			get_tree().get_root().add_child(poof)
 		velocity.x += acceleration
 		
 		should_flip = false
 	elif Input.is_action_pressed("move_left"):
+		
+		if velocity.x == 0 and is_on_floor() or is_on_floor() and not was_on_floor:
+			var poof = POOF_SCENE.instance()
+			poof.global_position = global_position
+			
+			get_tree().get_root().add_child(poof)
+		
 		velocity.x -= acceleration
 		should_flip = true
 	else:
