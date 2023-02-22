@@ -88,7 +88,7 @@ position = Vector2( 0, 75 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 7
+frame = 1
 playing = true
 offset = Vector2( 0, -250 )
 
@@ -130,6 +130,9 @@ collision_mask = 256
 scale = Vector2( 2, 6.5 )
 shape = SubResource( 2 )
 
+[node name="AfterImageTimer" type="Timer" parent="."]
+wait_time = 0.05
+
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="InvincibilityTimer" to="." method="_on_InvincibilityTimer_timeout"]
 [connection signal="timeout" from="InvincibilityFlashTimer" to="." method="_on_InvincibilityFlashTimer_timeout"]
@@ -138,3 +141,4 @@ shape = SubResource( 2 )
 [connection signal="timeout" from="Camera2D/Timer" to="Camera2D" method="_on_Timer_timeout"]
 [connection signal="body_entered" from="HurtBox" to="." method="_on_HurtBox_body_entered"]
 [connection signal="body_exited" from="HurtBox" to="." method="_on_HurtBox_body_exited"]
+[connection signal="timeout" from="AfterImageTimer" to="." method="_on_AfterImageTimer_timeout"]

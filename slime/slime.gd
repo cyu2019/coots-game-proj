@@ -140,6 +140,7 @@ func _process(delta):
 		if kick_dir < 0 and global_position.x <= -STAGE_EDGE_X or kick_dir > 0 and global_position.x > STAGE_EDGE_X:
 			state = GAME_STATE.IDLE
 			velocity.x = 0
+			$ActionTimer.start()
 		process_movement(delta)
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		face_player()

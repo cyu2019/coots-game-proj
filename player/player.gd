@@ -6,6 +6,7 @@ const IS_PLAYER = true
 
 const SLASH_SCENE = preload("res://player/slash/slash.tscn")
 const POOF_SCENE = preload("res://player/poof/poof.tscn")
+const AFTER_IMAGE = preload("res://player/after_image.tscn")
 
 # == numbers to tweak == 
 const max_speed = 800 # How fast the player will move (pixels/sec).
@@ -19,7 +20,7 @@ const coyote_time = 0.1
 var time_since_jump_pressed = 0
 const jump_buffer = 0.1
 
-const DASH_SPEED = 1300
+const DASH_SPEED = 1400
 var dash_time = 0.25
 # ========================
 
@@ -37,9 +38,6 @@ const initial_sprite_scale = 0.3
 
 var enemies_in_hurtbox = []
 var is_invincible = false
-
-#const AFTER_IMAGE = preload('res://AfterImage.tscn')
-
 
 # called on node beginning
 func _ready():
@@ -152,10 +150,20 @@ func dash():
 	can_dash = false
 	#$DashSound.play()
 	$DashCooldownTimer.start()
+	
+	_on_AfterImageTimer_timeout()
+	$AfterImageTimer.start()
+	
 	$DashTimer.start(dash_time)
 	var dir = 1
 	if ($AnimatedSprite.flip_h):
 		dir = -1
+		
+	var poof = POOF_SCENE.instance()
+	poof.global_position = global_position
+	poof.flip_h = not $AnimatedSprite.flip_h
+	get_tree().get_root().add_child(poof)
+		
 	velocity = DASH_SPEED * Vector2(dir, 0)
 	$AnimatedSprite.play("dash")
 
@@ -278,13 +286,11 @@ func _on_AnimatedSprite_animation_finished():
 	pass # Replace with function body.
 
 
-"""
+
 # used to be code that sent after images behind you when you dashed
 func _on_AfterImageTimer_timeout():
-	if is_dashing:
+	if state == GAME_STATE.DASH:
 		var after_image = AFTER_IMAGE.instance()
 		after_image.flip($AnimatedSprite.flip_h)
 		after_image.global_position = global_position
 		get_tree().get_root().add_child(after_image)	
-"""
-

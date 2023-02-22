@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://player/AfterImage.gd" type="Script" id=1]
+[ext_resource path="res://player/sprites/run/coots-run0000.png" type="Texture" id=2]
+
+[sub_resource type="CanvasItemMaterial" id=1]
+blend_mode = 1
+
+[node name="Node2D" type="Sprite"]
+modulate = Color( 2.8902, 1.74118, 5.2, 0.25098 )
+material = SubResource( 1 )
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 2 )
+script = ExtResource( 1 )
