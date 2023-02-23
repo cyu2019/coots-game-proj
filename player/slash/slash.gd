@@ -17,6 +17,7 @@ var hit_dir
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$AnimatedSprite.play()
+	$WooshSound.play()
 	pass # Replace with function body.
 
 """
@@ -50,6 +51,7 @@ func _on_Slash_body_entered(body):
 		return
 	if "IS_ENEMY" in body:
 		body.hurt()
+		$HitSound.play()
 		var impact1 = STRAIGHT_IMPACT_SCENE.instance()
 		var impact2 = CROSS_IMPACT_SCENE.instance()
 		impact1.global_position = body.global_position

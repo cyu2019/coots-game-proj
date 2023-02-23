@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/heavy_melee.wav-eb686d2f10bcff8be6b6dfbb48ffc017.sample"
+
+[deps]
+
+source_file="res://sounds/heavy_melee.wav"
+dest_files=[ "res://.import/heavy_melee.wav-eb686d2f10bcff8be6b6dfbb48ffc017.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

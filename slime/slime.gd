@@ -12,7 +12,7 @@ var KICK_SPEED = 1300
 const STAGE_EDGE_X = 800
 const ATTACK_HEIGHT = 400
 
-const MAX_HEALTH = 30
+const MAX_HEALTH = 80
 
 const radius = 50
 
@@ -46,11 +46,13 @@ var base_color = Color.white
 var health = MAX_HEALTH
 
 
+var burst_counter = 0
+var burst_amt = 0
+
 # called on node beginning
 func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
-	Globals.ui.set_boss_health(100)
 
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
@@ -62,7 +64,6 @@ func die():
 
 func hurt(damage=1):
 	health -= damage
-	print(health)
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	Globals.camera.shake(200,0.2)
@@ -179,6 +180,7 @@ func _process(delta):
 			Globals.camera.position = Vector2(0,0)
 			get_tree().paused = false
 			queue_free()
+			get_tree().change_scene("res://levels/test_aiden.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

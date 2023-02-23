@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://player/sprites/attack/coots-attack-side0002.png" type="Texture" id=1]
 [ext_resource path="res://player/player.gd" type="Script" id=2]
@@ -34,6 +34,7 @@
 [ext_resource path="res://player/sprites/attack-down/coots-attack-down0003.png" type="Texture" id=32]
 [ext_resource path="res://player/sprites/attack-down/coots-attack-down0000.png" type="Texture" id=33]
 [ext_resource path="res://player/sprites/attack-down/coots-attack-down0001.png" type="Texture" id=34]
+[ext_resource path="res://sounds/heavy_melee.wav" type="AudioStream" id=35]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -88,7 +89,7 @@ position = Vector2( 0, 75 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 5
+frame = 7
 playing = true
 offset = Vector2( 0, -250 )
 
@@ -132,6 +133,11 @@ shape = SubResource( 2 )
 
 [node name="AfterImageTimer" type="Timer" parent="."]
 wait_time = 0.05
+
+[node name="HurtSound" type="AudioStreamPlayer2D" parent="."]
+pause_mode = 2
+stream = ExtResource( 35 )
+bus = "NonEffectSFX"
 
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="InvincibilityTimer" to="." method="_on_InvincibilityTimer_timeout"]

@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://player/player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
 [ext_resource path="res://nick/nick.tscn" type="PackedScene" id=3]
+[ext_resource path="res://ui/UI.tscn" type="PackedScene" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 
@@ -26,4 +27,6 @@ scale = Vector2( 3.2, 3 )
 shape = SubResource( 1 )
 
 [node name="nick" parent="." instance=ExtResource( 3 )]
-position = Vector2( 500, 0 )
+position = Vector2( 499, -38 )
+
+[node name="UI" parent="." instance=ExtResource( 4 )]

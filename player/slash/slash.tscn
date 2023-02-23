@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://player/slash/sprites/slash0004.png" type="Texture" id=1]
 [ext_resource path="res://player/slash/sprites/slash0003.png" type="Texture" id=2]
@@ -6,6 +6,8 @@
 [ext_resource path="res://player/slash/sprites/slash0002.png" type="Texture" id=4]
 [ext_resource path="res://player/slash/sprites/slash0000.png" type="Texture" id=5]
 [ext_resource path="res://player/slash/slash.gd" type="Script" id=6]
+[ext_resource path="res://sounds/heavy_melee.wav" type="AudioStream" id=7]
+[ext_resource path="res://sounds/knife-swing-2-2.wav" type="AudioStream" id=8]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -35,6 +37,16 @@ material = SubResource( 3 )
 position = Vector2( -37.5, 0 )
 scale = Vector2( 25, 16 )
 shape = SubResource( 2 )
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+pause_mode = 2
+stream = ExtResource( 7 )
+bus = "SFX"
+
+[node name="WooshSound" type="AudioStreamPlayer2D" parent="."]
+pause_mode = 2
+stream = ExtResource( 8 )
+bus = "SFX"
 
 [connection signal="body_entered" from="." to="." method="_on_Slash_body_entered"]
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]

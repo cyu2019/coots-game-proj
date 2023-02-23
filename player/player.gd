@@ -7,6 +7,7 @@ const IS_PLAYER = true
 const SLASH_SCENE = preload("res://player/slash/slash.tscn")
 const POOF_SCENE = preload("res://player/poof/poof.tscn")
 const AFTER_IMAGE = preload("res://player/after_image.tscn")
+const CROSS_IMPACT = preload("res://player/slash-impacts/cross_impact.tscn")
 
 signal health_changed(amt)
 
@@ -14,8 +15,8 @@ signal health_changed(amt)
 const max_speed = 800 # How fast the player will move (pixels/sec).
 const acceleration = 400
 
-const gravity = 50
-const jump_speed = 1300
+const gravity = 3000
+const jump_speed = 1200
 var time_since_on_floor = 999
 const coyote_time = 0.1
 
@@ -58,9 +59,14 @@ func hurt(_damage=1):
 		return
 	snap = Vector2.ZERO
 	$Camera2D.shake(400, 0.3)
-	#Globals.ui.health = max(Globals.ui.health - 1, 0)
-	#$HurtSound.play()
+	$HurtSound.play()
 	$InvincibilityTimer.start()
+	
+	var impact = CROSS_IMPACT.instance()
+	impact.global_position = global_position
+	get_tree().get_root().add_child(impact)
+	impact.rotation = rand_range(-PI,PI)
+	
 	is_invincible = true
 	$AnimatedSprite.modulate.a = 0.5
 	emit_signal("health_changed", -_damage)
@@ -107,6 +113,14 @@ func _process(delta):
 	if global_position.y > 5000:
 		hurt()
 	
+	var bus_index = AudioServer.get_bus_index("EffectBus")
+	var effect = AudioServer.get_bus_effect(bus_index, 0)
+	if is_invincible:
+		effect.cutoff_hz = 500
+	else:
+		effect.cutoff_hz = lerp(effect.cutoff_hz, 9000, delta)
+	
+	
 	squashy_stretch(delta)
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
@@ -130,7 +144,8 @@ func _process(delta):
 	elif state == GAME_STATE.ATTACK:
 		process_movement(delta)
 		
-		if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 2:
+		#if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 2:
+		if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 1:
 			spawn_slash()
 
 	elif state == GAME_STATE.ATTACK_SLASHED:
@@ -222,8 +237,8 @@ func process_movement(delta):
 	
 	velocity.x = sign(velocity.x) * min(max_speed, abs(velocity.x))
 	
-	#velocity.y += gravity * delta
-	velocity.y += gravity
+	velocity.y += gravity * delta
+	#velocity.y += gravity
 
 	time_since_on_floor += delta
 	time_since_jump_pressed += delta

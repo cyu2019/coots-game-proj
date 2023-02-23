@@ -23,7 +23,8 @@ enum GAME_STATE {IDLE,
 				 UPB,
 				 LASER,
 				 LASER_WINDUP,
-				 LAND}
+				 LAND,
+				DEAD}
 var state = GAME_STATE.IDLE
 var velocity
 var snap
@@ -41,13 +42,18 @@ func _ready():
 	velocity = Vector2.ZERO
 
 func die():
-	queue_free()
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	$CollisionShape2D.queue_free()
+	state = GAME_STATE.DEAD
+	Globals.camera.global_position = global_position
+	get_tree().paused = true
+	#queue_free()
 
 func hurt(damage = 1):
 	health -= damage
-	print(health)
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
+	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
 	if health == floor(MAX_HEALTH / 2.0):
 		#$WindupTimer.wait_time = 0.5
@@ -136,6 +142,12 @@ func _process(delta):
 		$FireParticles.emitting = false
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
+	elif state == GAME_STATE.DEAD:
+		modulate.a -= delta
+		if modulate.a <= 0:
+			Globals.camera.position = Vector2(0,0)
+			get_tree().paused = false
+			queue_free()
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta
@@ -158,9 +170,9 @@ func _on_ActionTimer_timeout():
 		if choice == 0:
 			begin_upb()	
 		elif choice == 1:
-			begin_upb()
+			begin_sideb()
 		else:
-			begin_upb()
+			begin_laser()
 
 # state transition functions
 func begin_laser():

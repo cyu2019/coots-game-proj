@@ -1,7 +1,7 @@
 extends Area2D
 
 
-export var SPEED = 1000
+export var SPEED = 900
 export var dir = Vector2.RIGHT
 
 const IS_NEEDLE = true

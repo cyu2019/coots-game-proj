@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://aiden/TeleportIndicator.gd" type="Script" id=1]
+[ext_resource path="res://aiden/sprites/needle-throw/aiden-needle-throw0003.png" type="Texture" id=2]
+
+[sub_resource type="CanvasItemMaterial" id=1]
+blend_mode = 1
+
+[node name="Node2D" type="Sprite"]
+modulate = Color( 1, 0.12549, 0.12549, 1 )
+self_modulate = Color( 1, 1, 1, 0.231373 )
+material = SubResource( 1 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 2 )
+script = ExtResource( 1 )

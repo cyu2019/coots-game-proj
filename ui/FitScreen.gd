@@ -12,5 +12,5 @@ func _ready():
 
 
 func _process(delta):
-	rect_scale.x = get_viewport_rect().size.x
-	rect_scale.y = get_viewport_rect().size.y
+	rect_scale.x = get_viewport_rect().size.x / rect_size.x
+	rect_scale.y = get_viewport_rect().size.y / rect_size.y

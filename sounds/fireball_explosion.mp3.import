@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/fireball_explosion.mp3-ff67e3e0d312d17c7cd594e0be8e0c27.mp3str"
+
+[deps]
+
+source_file="res://sounds/fireball_explosion.mp3"
+dest_files=[ "res://.import/fireball_explosion.mp3-ff67e3e0d312d17c7cd594e0be8e0c27.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
 [ext_resource path="res://ui/heart.png" type="Texture" id=2]
 [ext_resource path="res://ui/black.png" type="Texture" id=3]
 [ext_resource path="res://ui/FitScreen.gd" type="Script" id=4]
+[ext_resource path="res://music/placeholder.mp3" type="AudioStream" id=5]
+[ext_resource path="res://ui/vignette.png" type="Texture" id=6]
+[ext_resource path="res://ui/PauseMenu.gd" type="Script" id=7]
 
 [node name="UI" type="CanvasLayer"]
 pause_mode = 2
@@ -34,3 +37,35 @@ margin_left = -512.0
 margin_top = -40.0
 margin_right = 512.0
 margin_bottom = -20.0
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+autoplay = true
+bus = "Music"
+
+[node name="HurtVignette" type="TextureRect" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+margin_right = 1280.0
+margin_bottom = 720.0
+texture = ExtResource( 6 )
+script = ExtResource( 4 )
+
+[node name="PauseMenu" type="ColorRect" parent="."]
+visible = false
+margin_right = 1920.0
+margin_bottom = 1080.0
+color = Color( 0, 0, 0, 0.211765 )
+script = ExtResource( 7 )
+
+[node name="QuitButton" type="Button" parent="PauseMenu"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -148.5
+margin_top = -28.0
+margin_right = 148.5
+margin_bottom = 28.0
+text = "Quit Game"
+
+[connection signal="pressed" from="PauseMenu/QuitButton" to="PauseMenu" method="close_game"]
