@@ -34,54 +34,29 @@ animations = [ {
 "name": "idle",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 17 ), ExtResource( 19 ) ],
-"loop": false,
-"name": "needle_charge",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 11 ), ExtResource( 15 ) ],
-"loop": false,
-"name": "needle_charge_air",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 23 ), ExtResource( 10 ) ],
-"loop": false,
-"name": "needle_charge_air_windup",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 18 ), ExtResource( 22 ) ],
-"loop": false,
-"name": "needle_charge_windup",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 12 ), ExtResource( 21 ) ],
+"frames": [ ExtResource( 20 ), ExtResource( 16 ), ExtResource( 12 ), ExtResource( 21 ) ],
 "loop": false,
 "name": "needle_throw",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 13 ), ExtResource( 14 ) ],
+"frames": [ ExtResource( 23 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 15 ) ],
+"loop": true,
+"name": "needle_charge_air",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 24 ), ExtResource( 25 ), ExtResource( 13 ), ExtResource( 14 ) ],
 "loop": false,
 "name": "needle_throw_air",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 24 ), ExtResource( 25 ) ],
-"loop": false,
-"name": "needle_throw_air_windup",
+"frames": [ ExtResource( 18 ), ExtResource( 22 ), ExtResource( 17 ), ExtResource( 19 ) ],
+"loop": true,
+"name": "needle_charge",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 20 ), ExtResource( 16 ) ],
-"loop": false,
-"name": "needle_throw_windup",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 5 ), ExtResource( 4 ) ],
+"frames": [ ExtResource( 2 ), ExtResource( 8 ), ExtResource( 7 ), ExtResource( 5 ), ExtResource( 4 ) ],
 "loop": false,
 "name": "poof",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 2 ), ExtResource( 8 ), ExtResource( 7 ) ],
-"loop": false,
-"name": "poof_windup",
 "speed": 10.0
 } ]
 
@@ -96,7 +71,7 @@ script = ExtResource( 26 )
 scale = Vector2( 0.503495, 0.485587 )
 frames = SubResource( 1 )
 animation = "poof"
-frame = 1
+frame = 4
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -108,7 +83,7 @@ wait_time = 3.0
 autostart = true
 
 [node name="WindupTimer" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.8
 
 [node name="FloorCast" type="RayCast2D" parent="."]
 enabled = true

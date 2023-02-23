@@ -4,34 +4,43 @@ extends KinematicBody2D
 const IS_ENEMY = true
 
 # == numbers to tweak == 
-const gravity = 3500
+const gravity = 1000
 const jump_speed = 300
 
 const KICK_SPEED = 1300
 
-const bl_corner = Vector2(-400, -50)
-const br_corner = Vector2(400, -50)
-const tr_corner = Vector2(400, -400)
-const tl_corner = Vector2(-400, -400)
+const bl_corner = Vector2(-500, -50)
+const br_corner = Vector2(500, -50)
+const tr_corner = Vector2(500, -400)
+const tl_corner = Vector2(-500, -400)
+
+const SMOKE_PARTICLES_SCENE = preload("res://particles/SmokeParticles.tscn")
+const smoke_trail_distance = 100
+
 
 const ATTACK_HEIGHT = 300
 const MAX_HEALTH = 30
 
 const MAX_NEEDLES = 3
 
+
+
 const radius = 50
 
 const shake_amount = 10
+
+var base_color = Color.white
+
 # ========================
 
 export(PackedScene) var NEEDLE = preload("res://aiden/needle.tscn")
 
 enum GAME_STATE {IDLE, 
-				 POOF_WINDUP, POOF, 
-				 NEEDLE_THROW_WINDUP, NEEDLE_THROW, 
-				 NEEDLE_THROW_AIR_WINDUP, NEEDLE_THROW_AIR,
-				 NEEDLE_CHARGE_WINDUP, NEEDLE_CHARGE,
-				 NEEDLE_CHARGE_AIR_WINDUP, NEEDLE_CHARGE_AIR,
+				 POOF, 
+				 NEEDLE_THROW, 
+				 NEEDLE_THROW_AIR,
+				 NEEDLE_CHARGE,
+				 NEEDLE_CHARGE_AIR,
 				 LAND}
 var state = GAME_STATE.IDLE
 
@@ -64,6 +73,7 @@ func die():
 func hurt(damage = 1):
 	health -= damage
 	print(health)
+	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	
 	if health == floor(MAX_HEALTH / 3.0):
@@ -92,6 +102,7 @@ Main Idea:
 Aiden will teleport around the stage, throw needles, then reset to the ground (if he ends up teleporting to the air)
 """
 func _process(delta):	
+	$AnimatedSprite.modulate = $AnimatedSprite.modulate.linear_interpolate(base_color, delta * 20)
 	
 	if not $ShakeTimer.is_stopped():
 		$AnimatedSprite.offset = Vector2(rand_range(-shake_amount, shake_amount), rand_range(-shake_amount, shake_amount))
@@ -113,101 +124,77 @@ func _process(delta):
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
-	elif state == GAME_STATE.POOF_WINDUP:
-		$AnimatedSprite.play("poof_windup")
 	elif state == GAME_STATE.POOF:
 		$AnimatedSprite.play("poof")
-		# move to the position
-		global_position = target_position
-		# face the player
-		face_player()
-		# change to needle state, this one is in the air
-		if global_position.y < -100:
-			begin_needle_air_charge()
-		# otherwise we're on the ground
-		else:
-			begin_needle_charge()
+		if $AnimatedSprite.frame == 4:
+			var smoke = SMOKE_PARTICLES_SCENE.instance()
+			smoke.global_position = global_position
+			get_tree().get_root().add_child(smoke)
+			
+			
+			var poof_dir = (target_position - global_position).normalized()
+			var total_distance = target_position.distance_to(global_position)
 
-		# debugging
-		# if $FloorCast.is_colliding():
-		# 	state = GAME_STATE.LAND
-		# process_movement_gravity(delta)
-	elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
-		$AnimatedSprite.play("needle_throw_windup")
+			var cur_distance = smoke_trail_distance
+			while cur_distance <= total_distance:
+				var little_smoke = SMOKE_PARTICLES_SCENE.instance()
+				little_smoke.global_position = global_position + poof_dir * cur_distance
+				little_smoke.scale = Vector2(0.3, 0.3)
+				get_tree().get_root().add_child(little_smoke)
+				cur_distance += smoke_trail_distance
+				
+				
+			
+			
+			
+			# move to the position
+			global_position = target_position
+			var smoke2 = SMOKE_PARTICLES_SCENE.instance()
+			smoke2.global_position = global_position
+			get_tree().get_root().add_child(smoke2)
+			# face the player
+			face_player()
+			# change to needle state, this one is in the air
+			if global_position.y < -100:
+				state = GAME_STATE.NEEDLE_CHARGE_AIR
+				$WindupTimer.start()
+				velocity.y = -400
+			# otherwise we're on the ground
+			else:
+				state = GAME_STATE.NEEDLE_CHARGE
+				$WindupTimer.start()
+
+			# debugging
+			# if $FloorCast.is_colliding():
+			# 	state = GAME_STATE.LAND
+			# process_movement_gravity(delta)
 	elif state == GAME_STATE.NEEDLE_THROW:
 		$AnimatedSprite.play("needle_throw")
-		if(num_needles < MAX_NEEDLES):
+		if $AnimatedSprite.frame >= 2 and num_needles < MAX_NEEDLES:
 			throw_needle()
 			num_needles += 1
-		if $FloorCast.is_colliding():
+		"""
+		if num_needles >= MAX_NEEDLES and $AnimatedSprite.frame >= 4:
 			state = GAME_STATE.LAND
+		"""
 		process_movement_gravity(delta)
-	elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
-		$AnimatedSprite.play("needle_charge_windup")
 	elif state == GAME_STATE.NEEDLE_CHARGE:
 		$AnimatedSprite.play("needle_charge")
-		state = GAME_STATE.NEEDLE_THROW_WINDUP
-
-	elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
-		$AnimatedSprite.play("needle_throw_air_windup")
+		process_movement_gravity(delta)
 	elif state == GAME_STATE.NEEDLE_THROW_AIR:
 		$AnimatedSprite.play("needle_throw_air")
-		if(num_needles < MAX_NEEDLES):
+		if $AnimatedSprite.frame >= 2 and num_needles < MAX_NEEDLES:
 			throw_needle()
 			num_needles += 1
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
-	elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
-		$AnimatedSprite.play("needle_charge_air_windup")
 	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
 		$AnimatedSprite.play("needle_charge_air")
-		state = GAME_STATE.NEEDLE_THROW_AIR_WINDUP
+		process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
-	"""
-	elif state == GAME_STATE.STOMP_WINDUP:
-		$AnimatedSprite.play("stomp_windup")
-		global_position = lerp(global_position, target_position, delta * 5)
-	elif state == GAME_STATE.STOMP:
-		$AnimatedSprite.play("stomp")
-		if $FloorCast.is_colliding():
-			state = GAME_STATE.LAND
-			Globals.camera.shake(400,0.5)
-		process_movement_gravity(delta)
-	elif state == GAME_STATE.KICK_WINDUP:
-		$AnimatedSprite.play("kick_windup")
-	elif state == GAME_STATE.KICK:
-		# $FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
-		# $FireParticles.emitting = true
-		
-		$AnimatedSprite.play("kick")
-		var kick_dir = sign(velocity.x)
-		if kick_dir < 0 and global_position.x <= -STAGE_EDGE_X or kick_dir > 0 and global_position.x > STAGE_EDGE_X:
-			state = GAME_STATE.IDLE
-			velocity.x = 0
-		process_movement(delta)
-	elif state == GAME_STATE.AIR_KICK_WINDUP:
-		face_player()
-		$AnimatedSprite.play("air_kick_windup")
-		global_position = lerp(global_position, target_position, delta * 5)
-	elif state == GAME_STATE.AIR_KICK:
-		$AnimatedSprite.play("air_kick")
-		# $FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
-		# $FireParticles.emitting = true
-		
-		if $FloorCast.is_colliding():
-			velocity.x = 0
-			state = GAME_STATE.LAND
-			Globals.camera.shake(400,0.3)
-		process_movement(delta)
-		
-	elif state == GAME_STATE.LAND:
-		# $FireParticles.emitting = false
-		$AnimatedSprite.play("land")
-		process_movement_gravity(delta)
-	"""
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta
@@ -228,9 +215,15 @@ func _on_ActionTimer_timeout():
 		# poof to bottom left corner, then throw needle at player
 		if choice == 0:
 			begin_poof(bl_corner)
+			if global_position.x < 0:
+				state = GAME_STATE.NEEDLE_CHARGE
+				$WindupTimer.start()
 		# poof to bottom right corner, then throw needle at player
 		elif choice == 1:
 			begin_poof(br_corner)
+			if global_position.x > 0:
+				state = GAME_STATE.NEEDLE_CHARGE
+				$WindupTimer.start()
 		# poof to top right corner, then throw needle at player
 		elif choice == 2:
 			begin_poof(tr_corner)
@@ -240,24 +233,16 @@ func _on_ActionTimer_timeout():
 
 # state transition functions
 func begin_poof(position):
-	state = GAME_STATE.POOF_WINDUP
+	state = GAME_STATE.POOF
 	target_position = position
 	$WindupTimer.start()
 
-func begin_needle_charge():
-	state = GAME_STATE.NEEDLE_CHARGE_WINDUP
-	$WindupTimer.start()
-
-func begin_needle_air_charge():
-	state = GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP
-	$WindupTimer.start()
-
 func begin_needle_throw():
-	state = GAME_STATE.NEEDLE_THROW_WINDUP
+	state = GAME_STATE.NEEDLE_CHARGE
 	$WindupTimer.start()
 
 func begin_needle_air_throw():
-	state = GAME_STATE.NEEDLE_THROW_AIR_WINDUP
+	state = GAME_STATE.NEEDLE_CHARGE_AIR
 	$WindupTimer.start()
 
 func throw_needle():
@@ -265,56 +250,26 @@ func throw_needle():
 	# print(get_tree().current_scene)
 	get_tree().current_scene.add_child(needle)
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	needle.global_position = self.global_position + dir_to_player * 300
+	needle.global_position = self.global_position + dir_to_player * 100 + dir_to_player.rotated(PI/2) * rand_range(-50, 50)
 	needle.rotation = dir_to_player.angle()
 	needle.dir = dir_to_player
+	
+	if is_on_floor():
+		needle.dir.y = 0
 	# print("direction")
 	# print(dir_to_player)
 	# print(needle.dir)
 	# print(needle.global_position)
 
-# func begin_stomp():
-# 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
-# 	state = GAME_STATE.STOMP_WINDUP
-# 	$WindupTimer.start()
-# func begin_kick():
-# 	state = GAME_STATE.KICK_WINDUP
-# 	face_player()
-# 	$WindupTimer.start()
-# func begin_air_kick():
-# 	state = GAME_STATE.AIR_KICK_WINDUP
-# 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
-# 	$WindupTimer.start()
-		
-# event handlers for state transitions
 func _on_AnimatedSprite_animation_finished():
 	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:
 		state = GAME_STATE.IDLE
 
 func _on_WindupTimer_timeout():
-	if state == GAME_STATE.POOF_WINDUP:
-		state = GAME_STATE.POOF
-	elif state == GAME_STATE.NEEDLE_THROW_WINDUP:
+	if state == GAME_STATE.NEEDLE_CHARGE:
 		state = GAME_STATE.NEEDLE_THROW
-	elif state == GAME_STATE.NEEDLE_THROW_AIR_WINDUP:
+		$WindupTimer.start()
+	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
 		state = GAME_STATE.NEEDLE_THROW_AIR
-	elif state == GAME_STATE.NEEDLE_CHARGE_WINDUP:
-		state = GAME_STATE.NEEDLE_CHARGE
-	elif state == GAME_STATE.NEEDLE_CHARGE_AIR_WINDUP:
-		state = GAME_STATE.NEEDLE_CHARGE_AIR
-
-	# if state == GAME_STATE.STOMP_WINDUP:
-	# 	state = GAME_STATE.STOMP
-	# elif state == GAME_STATE.KICK_WINDUP:
-	# 	$AnimatedSprite.play("kick")
-	# 	velocity.x = x_dir_to_player * KICK_SPEED
-	# 	state = GAME_STATE.KICK
-	# 	Globals.camera.shake(400,0.3)
-	# elif state == GAME_STATE.AIR_KICK_WINDUP:
-	# 	var kick_dir = (Globals.player.global_position - global_position).normalized()
-	# 	velocity = kick_dir * KICK_SPEED
-	# 	if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
-	# 		velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
-	# 	Globals.camera.shake(400,0.3)
-	# 	state = GAME_STATE.AIR_KICK
-		
+	elif state == GAME_STATE.NEEDLE_THROW:
+		state = GAME_STATE.IDLE
