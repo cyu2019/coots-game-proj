@@ -41,7 +41,8 @@ enum GAME_STATE {IDLE,
 				 NEEDLE_THROW_AIR,
 				 NEEDLE_CHARGE,
 				 NEEDLE_CHARGE_AIR,
-				 LAND}
+				 LAND,
+				DEAD}
 var state = GAME_STATE.IDLE
 
 var velocity
@@ -65,16 +66,23 @@ var health = MAX_HEALTH
 func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
-
+	Globals.ui.set_boss_health(100)
 
 func die():
-	queue_free()
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	$CollisionShape2D.queue_free()
+	state = GAME_STATE.DEAD
+	Globals.camera.global_position = global_position
+	get_tree().paused = true
+	#queue_free()
+
 
 func hurt(damage = 1):
 	health -= damage
 	print(health)
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
+	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
 	if health == floor(MAX_HEALTH / 3.0):
 		#$WindupTimer.wait_time = 0.5
@@ -195,6 +203,12 @@ func _process(delta):
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
+	elif state == GAME_STATE.DEAD:
+		modulate.a -= delta
+		if modulate.a <= 0:
+			Globals.camera.position = Vector2(0,0)
+			get_tree().paused = false
+			queue_free()
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

@@ -12,7 +12,6 @@ var KICK_SPEED = 1300
 const STAGE_EDGE_X = 800
 const ATTACK_HEIGHT = 400
 
-"This is just so we don't have to hit it for a while, this can be tuned later"
 const MAX_HEALTH = 30
 
 const radius = 50
@@ -28,7 +27,7 @@ enum GAME_STATE {IDLE,
 				 STOMP_WINDUP, STOMP, 
 				 KICK_WINDUP, KICK, 
 				 AIR_KICK_WINDUP, AIR_KICK, 
-				 LAND}
+				 LAND, DEAD}
 var state = GAME_STATE.IDLE
 
 var velocity
@@ -51,10 +50,15 @@ var health = MAX_HEALTH
 func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
-
+	Globals.ui.set_boss_health(100)
 
 func die():
-	queue_free()
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	$CollisionShape2D.queue_free()
+	state = GAME_STATE.DEAD
+	Globals.camera.global_position = global_position
+	get_tree().paused = true
+	#queue_free()
 
 func hurt(damage=1):
 	health -= damage
@@ -62,6 +66,9 @@ func hurt(damage=1):
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	Globals.camera.shake(200,0.2)
+	
+	
+	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 
 	# phase
 	if health == MAX_HEALTH/2:
@@ -104,7 +111,6 @@ func _process(delta):
 	# handles falling to their death
 	if global_position.y > 5000:
 		hurt()
-	
 	#was_on_floor = is_on_floor()
 	
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
@@ -166,7 +172,13 @@ func _process(delta):
 		$FireParticles.emitting = false
 		$AnimatedSprite.play("land")
 		process_movement_gravity(delta)
-		
+	
+	elif state == GAME_STATE.DEAD:
+		modulate.a -= delta
+		if modulate.a <= 0:
+			Globals.camera.position = Vector2(0,0)
+			get_tree().paused = false
+			queue_free()
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

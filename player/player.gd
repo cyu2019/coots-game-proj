@@ -8,6 +8,8 @@ const SLASH_SCENE = preload("res://player/slash/slash.tscn")
 const POOF_SCENE = preload("res://player/poof/poof.tscn")
 const AFTER_IMAGE = preload("res://player/after_image.tscn")
 
+signal health_changed(amt)
+
 # == numbers to tweak == 
 const max_speed = 800 # How fast the player will move (pixels/sec).
 const acceleration = 400
@@ -61,6 +63,7 @@ func hurt(_damage=1):
 	$InvincibilityTimer.start()
 	is_invincible = true
 	$AnimatedSprite.modulate.a = 0.5
+	emit_signal("health_changed", -_damage)
 
 func _on_InvincibilityTimer_timeout():
 	$AnimatedSprite.modulate.a = 1
