@@ -1,4 +1,4 @@
-extends Sprite
+extends KinematicBody2D
 
 
 # Declare member variables here. Examples:
@@ -9,7 +9,7 @@ func _ready():
 	pass
 
 func flip(should_flip):
-	flip_h = should_flip
+	$Sprite.flip_h = should_flip
 
 func _process(delta):
 	modulate.a -= delta * 2

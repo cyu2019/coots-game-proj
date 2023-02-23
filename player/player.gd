@@ -41,6 +41,7 @@ const initial_sprite_scale = 0.3
 
 var enemies_in_hurtbox = []
 var is_invincible = false
+var health = 30
 
 # called on node beginning
 func _ready():
@@ -54,12 +55,15 @@ func jump_cut():
 	if velocity.y < -100:
 		velocity.y /= 2
 
-func hurt(_damage=1):
+func hurt(damage=1):
 	if is_invincible or state == GAME_STATE.DASH:
 		return
 	snap = Vector2.ZERO
 	$Camera2D.shake(400, 0.3)
+
 	$HurtSound.play()
+	health = health - damage
+
 	$InvincibilityTimer.start()
 	
 	var impact = CROSS_IMPACT.instance()
