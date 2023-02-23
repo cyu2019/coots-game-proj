@@ -31,6 +31,16 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
+"frames": [ ExtResource( 15 ), ExtResource( 16 ) ],
+"loop": false,
+"name": "air_kick",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 23 ), ExtResource( 25 ), ExtResource( 24 ) ],
+"loop": false,
+"name": "air_kick_windup",
+"speed": 10.0
+}, {
 "frames": [ ExtResource( 2 ), ExtResource( 8 ), ExtResource( 13 ), ExtResource( 11 ) ],
 "loop": true,
 "name": "idle",
@@ -41,6 +51,21 @@ animations = [ {
 "name": "jump",
 "speed": 10.0
 }, {
+"frames": [ ExtResource( 6 ), ExtResource( 14 ) ],
+"loop": false,
+"name": "kick",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 4 ) ],
+"loop": false,
+"name": "kick_windup",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 19 ), ExtResource( 17 ), ExtResource( 22 ), ExtResource( 21 ) ],
+"loop": false,
+"name": "land",
+"speed": 10.0
+}, {
 "frames": [ ExtResource( 26 ), ExtResource( 18 ), ExtResource( 20 ) ],
 "loop": false,
 "name": "stomp",
@@ -49,31 +74,6 @@ animations = [ {
 "frames": [ ExtResource( 10 ), ExtResource( 1 ) ],
 "loop": false,
 "name": "stomp_windup",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 19 ), ExtResource( 17 ), ExtResource( 22 ), ExtResource( 21 ) ],
-"loop": false,
-"name": "land",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 15 ), ExtResource( 16 ) ],
-"loop": false,
-"name": "air_kick",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 6 ), ExtResource( 14 ) ],
-"loop": false,
-"name": "kick",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 23 ), ExtResource( 25 ), ExtResource( 24 ) ],
-"loop": false,
-"name": "air_kick_windup",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 4 ) ],
-"loop": false,
-"name": "kick_windup",
 "speed": 10.0
 } ]
 
@@ -87,13 +87,13 @@ min_value = -10.0
 max_value = 10.0
 _data = [ Vector2( 0, -9 ), 0.0, 0.0, 0, 0, Vector2( 1, 8.81818 ), 0.0, 0.0, 0, 0 ]
 
-[sub_resource type="CurveTexture" id=5]
+[sub_resource type="CurveTexture" id=9]
 curve = SubResource( 4 )
 
 [sub_resource type="Curve" id=6]
 _data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
 
-[sub_resource type="CurveTexture" id=7]
+[sub_resource type="CurveTexture" id=10]
 curve = SubResource( 6 )
 
 [sub_resource type="ParticlesMaterial" id=8]
@@ -107,10 +107,10 @@ initial_velocity_random = 0.23
 orbit_velocity = 0.0
 orbit_velocity_random = 0.0
 angle_random = 1.0
-angle_curve = SubResource( 5 )
+angle_curve = SubResource( 9 )
 scale = 0.5
 scale_random = 0.5
-scale_curve = SubResource( 7 )
+scale_curve = SubResource( 10 )
 hue_variation = 0.1
 hue_variation_random = 0.25
 
@@ -123,7 +123,6 @@ script = ExtResource( 27 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

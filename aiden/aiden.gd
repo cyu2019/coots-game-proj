@@ -5,36 +5,20 @@ const IS_ENEMY = true
 
 # == numbers to tweak == 
 const gravity = 1000
-const jump_speed = 300
-
-const KICK_SPEED = 1300
-
 const bl_corner = Vector2(-500, -50)
 const br_corner = Vector2(500, -50)
 const tr_corner = Vector2(500, -400)
 const tl_corner = Vector2(-500, -400)
-
 const SMOKE_PARTICLES_SCENE = preload("res://particles/SmokeParticles.tscn")
 const smoke_trail_distance = 100
-
-
-const ATTACK_HEIGHT = 300
 const MAX_HEALTH = 30
-
 const MAX_NEEDLES = 3
-
-
-
-const radius = 50
-
 const shake_amount = 10
-
 var base_color = Color.white
 
 # ========================
 
 export(PackedScene) var NEEDLE = preload("res://aiden/needle.tscn")
-
 enum GAME_STATE {IDLE, 
 				 POOF, 
 				 NEEDLE_THROW, 
@@ -44,21 +28,13 @@ enum GAME_STATE {IDLE,
 				 LAND,
 				DEAD}
 var state = GAME_STATE.IDLE
-
 var velocity
 var snap
 var was_on_floor = true
-
 var num_needles = 0
-
 var enemies_in_hurtbox = []
-var is_invincible = false
-
 var target_position = Vector2(0,0)
-
 var x_dir_to_player
-
-
 var health = MAX_HEALTH
 
 
@@ -84,7 +60,7 @@ func hurt(damage = 1):
 	$ShakeTimer.start()
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
-	if health == floor(MAX_HEALTH / 3.0):
+	if health == floor(MAX_HEALTH / 2.0):
 		#$WindupTimer.wait_time = 0.5
 		$ActionTimer.wait_time = 2
 	
@@ -126,8 +102,6 @@ func _process(delta):
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
-		# Need particles for poof later
-		# $FireParticles.emitting = false
 		num_needles = 0
 		face_player()
 		$AnimatedSprite.play("idle")
@@ -150,11 +124,6 @@ func _process(delta):
 				little_smoke.scale = Vector2(0.3, 0.3)
 				get_tree().get_root().add_child(little_smoke)
 				cur_distance += smoke_trail_distance
-				
-				
-			
-			
-			
 			# move to the position
 			global_position = target_position
 			var smoke2 = SMOKE_PARTICLES_SCENE.instance()
@@ -251,17 +220,8 @@ func begin_poof(position):
 	target_position = position
 	$WindupTimer.start()
 
-func begin_needle_throw():
-	state = GAME_STATE.NEEDLE_CHARGE
-	$WindupTimer.start()
-
-func begin_needle_air_throw():
-	state = GAME_STATE.NEEDLE_CHARGE_AIR
-	$WindupTimer.start()
-
 func throw_needle():
 	var needle = NEEDLE.instance()
-	# print(get_tree().current_scene)
 	get_tree().current_scene.add_child(needle)
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
 	if $FloorCast.is_colliding():
@@ -269,12 +229,7 @@ func throw_needle():
 	needle.global_position = self.global_position + dir_to_player * 100 + dir_to_player.rotated(PI/2) * rand_range(-20, 20)
 	needle.rotation = dir_to_player.angle()
 	needle.dir = dir_to_player
-	
-	
-	# print("direction")
-	# print(dir_to_player)
-	# print(needle.dir)
-	# print(needle.global_position)
+
 
 func _on_AnimatedSprite_animation_finished():
 	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:

@@ -193,14 +193,11 @@ func process_movement(_delta):
 func _on_ActionTimer_timeout():
 	#Come up with better attack patterns
 	if state == GAME_STATE.IDLE:
-		
 		var allowed_actions = 1
-		if health <= floor(MAX_HEALTH / 3.0):
-			allowed_actions = 3
-		elif health <= floor(MAX_HEALTH * 2 / 3.0):
+		if health <= floor(MAX_HEALTH * 2 / 3.0):
 			allowed_actions = 2
-		
-		
+		elif health <= floor(MAX_HEALTH / 3.0):
+			allowed_actions = 3
 		var choice = randi() % allowed_actions
 		if choice == 0:
 			begin_stomp()	
