@@ -4,47 +4,37 @@ extends KinematicBody2D
 const IS_ENEMY = true
 
 # == numbers to tweak == 
-const gravity = 3500
-const jump_speed = 300
-
-const KICK_SPEED = 1300
-
-const ATTACK_HEIGHT = 300
+const gravity = 1500
 const MAX_HEALTH = 30
-
+const DASH_AMOUNT = 500
 const radius = 50
-
 const shake_amount = 10
+var base_color = Color.white
+
 # ========================
-
 export(PackedScene) var LASER = preload("res://nick/laser.tscn")
-
 enum GAME_STATE {IDLE, 
-				 POOF_WINDUP, POOF, 
-				 LASER_SHOOT_WINDUP, LASER_SHOOT, 
+				 SIDEB_WINDUP, 
+				 SIDEB, 
+				 UPB_CHARGE,
+				 UPB,
+				 LASER,
+				 LASER_WINDUP,
 				 LAND}
 var state = GAME_STATE.IDLE
-
 var velocity
 var snap
 var was_on_floor = true
-
 var enemies_in_hurtbox = []
 var is_invincible = false
-
 var target_position = Vector2(0,0)
-
 var x_dir_to_player
-
-
 var health = MAX_HEALTH
-
 
 # called on node beginning
 func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
-
 
 func die():
 	queue_free()
@@ -52,9 +42,10 @@ func die():
 func hurt(damage = 1):
 	health -= damage
 	print(health)
+	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	
-	if health == floor(MAX_HEALTH / 3.0):
+	if health == floor(MAX_HEALTH / 2.0):
 		#$WindupTimer.wait_time = 0.5
 		$ActionTimer.wait_time = 2
 	
@@ -75,7 +66,12 @@ func face_player():
 	$AnimatedSprite.flip_h = true if dir_to_player.x < 0 else false
 
 # called every frame
+"""
+Main Idea:
+Aiden will teleport around the stage, throw needles, then reset to the ground (if he ends up teleporting to the air)
+"""
 func _process(delta):	
+	$AnimatedSprite.modulate = $AnimatedSprite.modulate.linear_interpolate(base_color, delta * 20)
 	
 	if not $ShakeTimer.is_stopped():
 		$AnimatedSprite.offset = Vector2(rand_range(-shake_amount, shake_amount), rand_range(-shake_amount, shake_amount))
@@ -91,25 +87,32 @@ func _process(delta):
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
-		# Need particles for poof later
-		# $FireParticles.emitting = false
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
-	elif state == GAME_STATE.LASER_SHOOT_WINDUP:
-		$AnimatedSprite.play("laser_shoot_windup")
-	elif state == GAME_STATE.LASER_SHOOT:
-		$AnimatedSprite.play("laser_shoot")
-		# move to the position
-		global_position = target_position
-		# face the player
+	elif state == GAME_STATE.SIDEB_WINDUP:
 		face_player()
-		shoot_laser()
-
+		$AnimatedSprite.play("sideb_windup")
+	elif state == GAME_STATE.SIDEB:
+		$AnimatedSprite.play("sideb")
+		global_position = lerp(global_position, global_position + DASH_AMOUNT * Vector2(x_dir_to_player,0), delta * 5)
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.UPB_CHARGE:
+		$AnimatedSprite.play("upb_charge")
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.UPB:
+		$AnimatedSprite.play("upb")
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.LASER_WINDUP:
+		$AnimatedSprite.play("laser_windup")
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.LASER:
+		$AnimatedSprite.play("laser")
+		if $AnimatedSprite.frame >= 1:
+			shoot_laser()
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
-
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -126,44 +129,57 @@ func process_movement(delta):
 # action timer
 func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
-		var choice = randi() % 4
-		# At the moment, these corners are fixed position
-		# Maybe make it a random fixed distance from the player?
-
-		# poof to bottom left corner, then throw needle at player
+		var allowed_actions = 1
+		if health <= floor(MAX_HEALTH * 2 / 3.0):
+			allowed_actions = 2
+		elif health <= floor(MAX_HEALTH / 3.0):
+			allowed_actions = 3
+		var choice = randi() % allowed_actions
 		if choice == 0:
-			begin_shoot()
-		# poof to bottom right corner, then throw needle at player
+			begin_sideb()	
 		elif choice == 1:
-			begin_shoot()
-		# poof to top right corner, then throw needle at player
-		elif choice == 2:
-			begin_shoot()
-		# poof to top left corner, then throw needle at player
+			begin_sideb()
 		else:
-			begin_shoot()
+			begin_sideb()
 
 # state transition functions
-func begin_shoot():
-	state = GAME_STATE.LASER_SHOOT
-	target_position = position
+func begin_laser():
+	state = GAME_STATE.LASER_WINDUP
+	$WindupTimer.start()
+
+func begin_sideb():
+	state = GAME_STATE.SIDEB_WINDUP
+	$WindupTimer.start()
+
+func begin_upb():
+	state = GAME_STATE.UPB_CHARGE
 	$WindupTimer.start()
 
 func shoot_laser():
 	var laser = LASER.instance()
-	# print(get_tree().current_scene)
 	get_tree().current_scene.add_child(laser)
-	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	laser.global_position = self.global_position + dir_to_player * 300
+	var dir_to_player = Vector2(sign(Globals.player.global_position.x - global_position.x), 0)
+	laser.global_position = self.global_position + dir_to_player * 100
 	laser.rotation = dir_to_player.angle()
 	laser.dir = dir_to_player
 
-
-# event handlers for state transitions
 func _on_AnimatedSprite_animation_finished():
 	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:
 		state = GAME_STATE.IDLE
 
 func _on_WindupTimer_timeout():
-	if state == GAME_STATE.LASER_SHOOT_WINDUP:
-		state = GAME_STATE.LASER_SHOOT
+	if state == GAME_STATE.UPB_CHARGE:
+		state = GAME_STATE.UPB
+	elif state == GAME_STATE.SIDEB_WINDUP:
+		state = GAME_STATE.SIDEB
+		$WindupTimer.start()
+	elif state == GAME_STATE.LASER_WINDUP:
+		state = GAME_STATE.LASER
+	elif state == GAME_STATE.LASER:
+		if $FloorCast.is_colliding():
+			state = GAME_STATE.IDLE
+		else:
+			state = GAME_STATE.LASER_WINDUP
+			$WindupTimer.start()
+	elif state == GAME_STATE.SIDEB:
+		state = GAME_STATE.IDLE
