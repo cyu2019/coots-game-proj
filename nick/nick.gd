@@ -24,6 +24,7 @@ enum GAME_STATE {IDLE,
 var state = GAME_STATE.IDLE
 var velocity
 var snap
+var num_lasers
 var was_on_floor = true
 var enemies_in_hurtbox = []
 var is_invincible = false
@@ -95,6 +96,8 @@ func _process(delta):
 		$AnimatedSprite.play("sideb_windup")
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
+		# if $AnimatedSprite.frame == 1:
+		# come back to this and make a teleport + trail of nicks
 		global_position = lerp(global_position, global_position + DASH_AMOUNT * Vector2(x_dir_to_player,0), delta * 5)
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.UPB_CHARGE:
@@ -104,12 +107,14 @@ func _process(delta):
 		$AnimatedSprite.play("upb")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.LASER_WINDUP:
-		$AnimatedSprite.play("laser_windup")
+		# come back to this and fix projectiles to not spawn impact if you dash
+		$AnimatedSprite.play("laser")
+		if $AnimatedSprite.frame >= 4 and num_lasers == 0:
+			shoot_laser()
+			num_lasers += 1
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.LASER:
 		$AnimatedSprite.play("laser")
-		if $AnimatedSprite.frame >= 1:
-			shoot_laser()
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
@@ -136,14 +141,15 @@ func _on_ActionTimer_timeout():
 			allowed_actions = 3
 		var choice = randi() % allowed_actions
 		if choice == 0:
-			begin_sideb()	
+			begin_laser()	
 		elif choice == 1:
-			begin_sideb()
+			begin_laser()
 		else:
-			begin_sideb()
+			begin_laser()
 
 # state transition functions
 func begin_laser():
+	num_lasers = 0
 	state = GAME_STATE.LASER_WINDUP
 	$WindupTimer.start()
 
@@ -179,6 +185,7 @@ func _on_WindupTimer_timeout():
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.IDLE
 		else:
+			num_lasers = 0
 			state = GAME_STATE.LASER_WINDUP
 			$WindupTimer.start()
 	elif state == GAME_STATE.SIDEB:

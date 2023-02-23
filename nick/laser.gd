@@ -11,8 +11,9 @@ const CROSS_IMPACT = preload("res://player/slash-impacts/cross_impact.tscn")
 func _process(delta):
 	global_position += SPEED * dir * delta
 
-func destroy():
-	spawn_impact()
+func destroy(check):
+	if(check):
+		spawn_impact()
 	queue_free()
 	#Globals.camera.shake(200,0.2)
 
@@ -23,18 +24,21 @@ func spawn_impact():
 	impact.rotation = rand_range(-PI,PI)
 
 func _on_Needle_area_entered(area):
+	print(area.get_parent())
 	if area.name == "HurtBox" and "IS_PLAYER" in area.get_parent():
 		area.get_parent().hurt()
+		destroy(true)
+		return
 	if "IS_LASER" in area:
 		return
-	destroy() # Replace with function body.
+	destroy(true) # Replace with function body.
 
 
 func _on_Needle_body_entered(body):
 	if "IS_ENEMY" in body:
 		return
-	destroy() # Replace with function body.
+	destroy(true) # Replace with function body.
 
 
 func _on_VisibilityNotifier2D_screen_exited():
-	destroy() # Replace with function body.
+	destroy(true) # Replace with function body.
