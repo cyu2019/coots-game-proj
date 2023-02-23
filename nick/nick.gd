@@ -5,20 +5,22 @@ const IS_ENEMY = true
 
 # == numbers to tweak == 
 const gravity = 1500
-const MAX_HEALTH = 30
+# sideb
 const DASH_AMOUNT = 500
+const NICK_AFTER_IMAGE = preload("res://nick/after_image.tscn")
+const after_image_distance = 100
+# upb
 const UPB_SPEED = 1000
 const ATTACK_HEIGHT = 300
 const MAX_DIST = 500
-const radius = 50
+# camera and character
+const MAX_HEALTH = 30
 const shake_amount = 10
-const STAGE_EDGE_X = 600
 var base_color = Color.white
 
 # ========================
 export(PackedScene) var LASER = preload("res://nick/laser.tscn")
 enum GAME_STATE {IDLE, 
-				 SIDEB_WINDUP, 
 				 SIDEB, 
 				 UPB_CHARGE,
 				 UPB,
@@ -96,14 +98,41 @@ func _process(delta):
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
-	elif state == GAME_STATE.SIDEB_WINDUP:
-		face_player()
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
-		# if $AnimatedSprite.frame == 1:
 		# come back to this and make a teleport + trail of nicks
-		global_position = lerp(global_position, global_position + DASH_AMOUNT * Vector2(x_dir_to_player,0), delta * 5)
-		process_movement_gravity(delta)
+		# global_position = lerp(global_position, global_position + DASH_AMOUNT * Vector2(x_dir_to_player,0), delta * 5)
+		# process_movement_gravity(delta)
+		if $AnimatedSprite.frame == 4:
+				
+			var after_image = NICK_AFTER_IMAGE.instance()
+			after_image.global_position = global_position
+			after_image.flip($AnimatedSprite.flip_h)
+			get_tree().get_root().add_child(after_image)
+
+			var dash_dir = (target_position - global_position).normalized()
+			var total_distance = target_position.distance_to(global_position)
+
+			var cur_distance = after_image_distance
+			while cur_distance <= total_distance:
+				var after = NICK_AFTER_IMAGE.instance()
+				after.global_position = global_position + dash_dir * cur_distance
+				after.modulate.a = 1 - cur_distance / total_distance
+				after.flip($AnimatedSprite.flip_h)
+				get_tree().get_root().add_child(after)
+				cur_distance += after_image_distance
+			# move to the position
+			global_position = target_position
+			# face the player
+			face_player()
+			# change to needle state, this one is in the air
+			if global_position.y < -100:
+				begin_upb()
+			# otherwise we're on the ground
+			else:
+				state = GAME_STATE.LAND
+				velocity.x = 0
+
 	elif state == GAME_STATE.UPB_CHARGE:
 		$AnimatedSprite.play("upb_charge")
 		global_position = lerp(global_position, target_position, delta * 5)
@@ -163,11 +192,11 @@ func _on_ActionTimer_timeout():
 			allowed_actions = 3
 		var choice = randi() % allowed_actions
 		if choice == 0:
-			begin_upb()	
+			begin_sideb()	
 		elif choice == 1:
-			begin_upb()
+			begin_sideb()
 		else:
-			begin_upb()
+			begin_sideb()
 
 # state transition functions
 func begin_laser():
@@ -176,7 +205,10 @@ func begin_laser():
 	$WindupTimer.start()
 
 func begin_sideb():
-	state = GAME_STATE.SIDEB_WINDUP
+	state = GAME_STATE.SIDEB
+	face_player()
+	var dir_to_player = Vector2(x_dir_to_player, 0)
+	target_position = global_position + dir_to_player * DASH_AMOUNT
 	$WindupTimer.start()
 
 func begin_upb():
@@ -210,9 +242,6 @@ func _on_WindupTimer_timeout():
 		$AnimatedSprite.rotation = velocity.angle() + PI/2
 		Globals.camera.shake(400,0.3)
 		state = GAME_STATE.UPB
-	elif state == GAME_STATE.SIDEB_WINDUP:
-		state = GAME_STATE.SIDEB
-		$WindupTimer.start()
 	elif state == GAME_STATE.LASER_WINDUP:
 		state = GAME_STATE.LASER
 	elif state == GAME_STATE.LASER:

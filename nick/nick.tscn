@@ -34,14 +34,9 @@ animations = [ {
 "name": "laser",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 5 ) ],
-"loop": false,
-"name": "sideb",
-"speed": 10.0
-}, {
 "frames": [ ExtResource( 9 ), ExtResource( 16 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 5 ) ],
 "loop": false,
-"name": "sideb_windup",
+"name": "sideb",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 15 ) ],
