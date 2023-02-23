@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://nick/nick.gd" type="Script" id=1]
 [ext_resource path="res://nick/sprites/idle/nick-idle0002.png" type="Texture" id=2]
@@ -20,6 +20,7 @@
 [ext_resource path="res://nick/sprites/idle/nick-idle0003.png" type="Texture" id=18]
 [ext_resource path="res://nick/sprites/upb-charge/nick-upb-charge0001.png" type="Texture" id=19]
 [ext_resource path="res://nick/sprites/upb-charge/nick-upb-charge0002.png" type="Texture" id=20]
+[ext_resource path="res://particles/fire.png" type="Texture" id=21]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -56,6 +57,41 @@ animations = [ {
 
 [sub_resource type="RectangleShape2D" id=2]
 
+[sub_resource type="CanvasItemMaterial" id=8]
+blend_mode = 1
+
+[sub_resource type="Curve" id=9]
+min_value = -10.0
+max_value = 10.0
+_data = [ Vector2( 0, -9 ), 0.0, 0.0, 0, 0, Vector2( 1, 8.81818 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=5]
+curve = SubResource( 9 )
+
+[sub_resource type="Curve" id=10]
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=7]
+curve = SubResource( 10 )
+
+[sub_resource type="ParticlesMaterial" id=11]
+emission_shape = 1
+emission_sphere_radius = 53.7
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 235.49
+initial_velocity_random = 0.23
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle_random = 1.0
+angle_curve = SubResource( 5 )
+scale = 0.5
+scale_random = 0.5
+scale_curve = SubResource( 7 )
+hue_variation = 0.1
+hue_variation_random = 0.25
+
 [node name="nick" type="KinematicBody2D"]
 collision_layer = 256
 collision_mask = 256
@@ -65,6 +101,7 @@ script = ExtResource( 1 )
 scale = Vector2( 0.503495, 0.485587 )
 frames = SubResource( 1 )
 animation = "idle"
+frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -86,6 +123,15 @@ collision_mask = 256
 [node name="ShakeTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[node name="FireParticles" type="Particles2D" parent="."]
+material = SubResource( 8 )
+position = Vector2( -1, 33 )
+emitting = false
+amount = 32
+speed_scale = 1.5
+process_material = SubResource( 11 )
+texture = ExtResource( 21 )
 
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]

@@ -7,8 +7,11 @@ const IS_ENEMY = true
 const gravity = 1500
 const MAX_HEALTH = 30
 const DASH_AMOUNT = 500
+const UPB_SPEED = 1000
+const ATTACK_HEIGHT = 300
 const radius = 50
 const shake_amount = 10
+const STAGE_EDGE_X = 600
 var base_color = Color.white
 
 # ========================
@@ -93,7 +96,6 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.SIDEB_WINDUP:
 		face_player()
-		$AnimatedSprite.play("sideb_windup")
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
 		# if $AnimatedSprite.frame == 1:
@@ -102,23 +104,36 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.UPB_CHARGE:
 		$AnimatedSprite.play("upb_charge")
-		process_movement_gravity(delta)
+		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.UPB:
 		$AnimatedSprite.play("upb")
-		process_movement_gravity(delta)
+		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
+		$FireParticles.emitting = true
+		var rot = rotation
+		rotation = 0
+		if $FloorCast.is_colliding():
+			velocity.x = 0
+			state = GAME_STATE.LAND
+			Globals.camera.shake(400,0.3)
+		var kick_dir = sign(velocity.x)
+		if kick_dir < 0 and global_position.x <= -STAGE_EDGE_X or kick_dir > 0 and global_position.x > STAGE_EDGE_X:
+			state = GAME_STATE.IDLE
+			velocity.x = 0
+			$ActionTimer.start()
+		process_movement(delta)
 	elif state == GAME_STATE.LASER_WINDUP:
 		# come back to this and fix projectiles to not spawn impact if you dash
 		$AnimatedSprite.play("laser")
 		if $AnimatedSprite.frame >= 4 and num_lasers == 0:
 			shoot_laser()
 			num_lasers += 1
-		process_movement_gravity(delta)
 	elif state == GAME_STATE.LASER:
 		$AnimatedSprite.play("laser")
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
+		$FireParticles.emitting = false
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	
@@ -141,11 +156,11 @@ func _on_ActionTimer_timeout():
 			allowed_actions = 3
 		var choice = randi() % allowed_actions
 		if choice == 0:
-			begin_laser()	
+			begin_upb()	
 		elif choice == 1:
-			begin_laser()
+			begin_upb()
 		else:
-			begin_laser()
+			begin_upb()
 
 # state transition functions
 func begin_laser():
@@ -159,12 +174,15 @@ func begin_sideb():
 
 func begin_upb():
 	state = GAME_STATE.UPB_CHARGE
+	face_player()
+	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
 	$WindupTimer.start()
 
 func shoot_laser():
 	var laser = LASER.instance()
 	get_tree().current_scene.add_child(laser)
-	var dir_to_player = Vector2(sign(Globals.player.global_position.x - global_position.x), 0)
+	face_player()
+	var dir_to_player = Vector2(x_dir_to_player, 0)
 	laser.global_position = self.global_position + dir_to_player * 100
 	laser.rotation = dir_to_player.angle()
 	laser.dir = dir_to_player
@@ -175,6 +193,12 @@ func _on_AnimatedSprite_animation_finished():
 
 func _on_WindupTimer_timeout():
 	if state == GAME_STATE.UPB_CHARGE:
+		var upb_dir = (Globals.player.global_position - global_position).normalized()
+		velocity = upb_dir * UPB_SPEED
+		print(velocity)
+		rotation = velocity.angle() + PI/2
+		print(rotation)
+		Globals.camera.shake(400,0.3)
 		state = GAME_STATE.UPB
 	elif state == GAME_STATE.SIDEB_WINDUP:
 		state = GAME_STATE.SIDEB
