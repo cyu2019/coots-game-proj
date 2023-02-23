@@ -250,12 +250,13 @@ func throw_needle():
 	# print(get_tree().current_scene)
 	get_tree().current_scene.add_child(needle)
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	needle.global_position = self.global_position + dir_to_player * 100 + dir_to_player.rotated(PI/2) * rand_range(-50, 50)
+	if $FloorCast.is_colliding():
+		dir_to_player.y = 0
+	needle.global_position = self.global_position + dir_to_player * 100 + dir_to_player.rotated(PI/2) * rand_range(-20, 20)
 	needle.rotation = dir_to_player.angle()
 	needle.dir = dir_to_player
 	
-	if is_on_floor():
-		needle.dir.y = 0
+	
 	# print("direction")
 	# print(dir_to_player)
 	# print(needle.dir)
