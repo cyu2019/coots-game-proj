@@ -76,7 +76,6 @@ shape = SubResource( 1 )
 
 [node name="nick" parent="." instance=ExtResource( 3 )]
 position = Vector2( 499, -38 )
-LASER = null
 
 [node name="UI" parent="." instance=ExtResource( 4 )]
 
