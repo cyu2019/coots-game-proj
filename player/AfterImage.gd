@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends Node2D
 
 
 # Declare member variables here. Examples:
@@ -12,6 +12,6 @@ func flip(should_flip):
 	$Sprite.flip_h = should_flip
 
 func _process(delta):
-	modulate.a -= delta * 2
-	if modulate.a <= 0:
+	$Sprite.modulate.a -= delta * 2
+	if $Sprite.modulate.a <= 0:
 		queue_free()

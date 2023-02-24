@@ -1,9 +1,15 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://player/player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://slime/slime.tscn" type="PackedScene" id=2]
 [ext_resource path="res://ui/UI.tscn" type="PackedScene" id=3]
 [ext_resource path="res://icon.png" type="Texture" id=4]
+[ext_resource path="res://backgrounds/bg_0002s_0004_slime-bg-2.png" type="Texture" id=6]
+[ext_resource path="res://backgrounds/bg_0002s_0003_slime-bg-1.png" type="Texture" id=7]
+[ext_resource path="res://backgrounds/bg_0002s_0000_slime-fg.png" type="Texture" id=8]
+[ext_resource path="res://backgrounds/bg_0002s_0005_slime-bg-3.png" type="Texture" id=9]
+[ext_resource path="res://backgrounds/bg_0002s_0002_slime-floor.png" type="Texture" id=10]
+[ext_resource path="res://backgrounds/bg_0002s_0006_slime-true-bg.png" type="Texture" id=11]
 
 [sub_resource type="RectangleShape2D" id=1]
 
@@ -23,6 +29,7 @@ __meta__ = {
 }
 
 [node name="Sprite" type="Sprite" parent="StaticBody2D"]
+visible = false
 modulate = Color( 0, 0, 0, 1 )
 texture = ExtResource( 4 )
 
@@ -41,6 +48,7 @@ __meta__ = {
 }
 
 [node name="Sprite" type="Sprite" parent="StaticBody2D2"]
+visible = false
 modulate = Color( 0, 0, 0, 1 )
 texture = ExtResource( 4 )
 
@@ -59,6 +67,7 @@ __meta__ = {
 }
 
 [node name="Sprite" type="Sprite" parent="StaticBody2D3"]
+visible = false
 modulate = Color( 0, 0, 0, 1 )
 texture = ExtResource( 4 )
 
@@ -68,3 +77,46 @@ shape = SubResource( 1 )
 
 [node name="slime" parent="." instance=ExtResource( 2 )]
 position = Vector2( -500, -40 )
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer11" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0, 0 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer11"]
+scale = Vector2( 10, 10 )
+texture = ExtResource( 11 )
+
+[node name="ParallaxLayer10" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0.1, 0.1 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer10"]
+texture = ExtResource( 9 )
+
+[node name="ParallaxLayer9" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0.3, 0.3 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer9"]
+texture = ExtResource( 6 )
+
+[node name="ParallaxLayer8" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0.5, 0.5 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer8"]
+texture = ExtResource( 7 )
+
+[node name="ParallaxLayer7" type="ParallaxLayer" parent="ParallaxBackground"]
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer7"]
+position = Vector2( 0, 480 )
+texture = ExtResource( 10 )
+
+[node name="ParallaxForeground" type="ParallaxBackground" parent="."]
+layer = 100
+
+[node name="ParallaxLayer6" type="ParallaxLayer" parent="ParallaxForeground"]
+z_index = 100
+motion_scale = Vector2( 2, 2 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxForeground/ParallaxLayer6"]
+texture = ExtResource( 8 )

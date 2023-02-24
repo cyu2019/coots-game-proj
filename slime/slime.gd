@@ -2,6 +2,7 @@ extends KinematicBody2D
 
 const IS_ENEMY = true
 const LAND_PARTICLES_SCENE = preload("res://particles/LandParticles.tscn")
+const DEATH_PARTICLES_SCENE = preload("res://particles/DeathParticles.tscn")
 
 # == numbers to tweak == 
 const gravity = 3500
@@ -10,9 +11,9 @@ const jump_speed = 300
 var KICK_SPEED = 1300
 
 const STAGE_EDGE_X = 800
-const ATTACK_HEIGHT = 400
+const ATTACK_HEIGHT = 500
 
-const MAX_HEALTH = 80
+const MAX_HEALTH = 50
 
 const radius = 50
 
@@ -60,6 +61,12 @@ func die():
 	state = GAME_STATE.DEAD
 	Globals.camera.global_position = global_position
 	get_tree().paused = true
+	
+	Engine.time_scale = 1.0
+	var particles = DEATH_PARTICLES_SCENE.instance()
+	particles.global_position = global_position
+	get_tree().get_root().add_child(particles)
+	
 	#queue_free()
 
 func hurt(damage=1):
@@ -75,13 +82,13 @@ func hurt(damage=1):
 	if health == MAX_HEALTH/2:
 		$WindupTimer.wait_time = 0.8
 		$ActionTimer.wait_time = 1
-		KICK_SPEED = 1600
+		#KICK_SPEED = 1600
 		base_color = Color.orange
 		
 		
 	if health == MAX_HEALTH/3:
 		$ActionTimer.wait_time = 0.5
-		KICK_SPEED = 1800
+		#KICK_SPEED = 1800
 		base_color = Color.orangered
 	
 	if health <= 0:
@@ -237,6 +244,7 @@ func _on_WindupTimer_timeout():
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
 		Globals.camera.shake(400,0.3)
+		$KickTimer.start()
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		var kick_dir = (Globals.player.global_position - global_position).normalized()
 		velocity = kick_dir * KICK_SPEED
@@ -245,3 +253,8 @@ func _on_WindupTimer_timeout():
 		Globals.camera.shake(400,0.3)
 		state = GAME_STATE.AIR_KICK
 		
+func _on_KickTimer_timeout():
+	if state == GAME_STATE.KICK:
+		state = GAME_STATE.IDLE
+		velocity.x = 0
+		$ActionTimer.start()

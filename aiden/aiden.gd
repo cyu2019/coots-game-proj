@@ -10,8 +10,9 @@ const br_corner = Vector2(500, -50)
 const tr_corner = Vector2(500, -400)
 const tl_corner = Vector2(-500, -400)
 const SMOKE_PARTICLES_SCENE = preload("res://particles/SmokeParticles.tscn")
+const DEATH_PARTICLES_SCENE = preload("res://particles/DeathParticles.tscn")
 const smoke_trail_distance = 100
-const MAX_HEALTH = 80
+const MAX_HEALTH = 50
 const MAX_NEEDLES = 3
 const shake_amount = 10
 var base_color = Color.white
@@ -64,15 +65,22 @@ func warn():
 	else:
 		teleport_indicator = TELEPORT_INDICATOR_GROUNDED_SCENE.instance()
 	teleport_indicator.target_position = target_position
-	teleport_indicator.global_position = target_position - (target_position - global_position).normalized() * 300
+	teleport_indicator.global_position = global_position
+	#teleport_indicator.global_position = target_position - (target_position - global_position).normalized() * 300
 	get_tree().get_root().add_child(teleport_indicator)
 	
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
 	state = GAME_STATE.DEAD
+	Engine.time_scale = 1.0
 	Globals.camera.global_position = global_position
 	get_tree().paused = true
+	if is_instance_valid(teleport_indicator):
+		teleport_indicator.queue_free()
+	var particles = DEATH_PARTICLES_SCENE.instance()
+	particles.global_position = global_position
+	get_tree().get_root().add_child(particles)
 	#queue_free()
 
 
@@ -158,12 +166,6 @@ func _process(delta):
 	elif state == GAME_STATE.POOF:
 		$AnimatedSprite.play("poof")
 		warn()
-		if $AnimatedSprite.frame == 4:
-			teleport()
-			# debugging
-			# if $FloorCast.is_colliding():
-			# 	state = GAME_STATE.LAND
-			# process_movement_gravity(delta)
 	elif state == GAME_STATE.NEEDLE_THROW:
 		$AnimatedSprite.play("needle_throw")
 		if burst_counter > 0:
@@ -188,12 +190,16 @@ func _process(delta):
 				teleport()
 				target_position = get_random_pos()
 				burst_counter -= 1
+		
+		if has_thrown_needles:
+			process_movement_gravity(delta)
+		
 		if $FloorCast.is_colliding():
 			state = GAME_STATE.LAND
-		process_movement_gravity(delta)
+		
 	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
 		$AnimatedSprite.play("needle_charge_air")
-		process_movement_gravity(delta)
+		#process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -203,6 +209,7 @@ func _process(delta):
 			Globals.camera.position = Vector2(0,0)
 			get_tree().paused = false
 			queue_free()
+			get_tree().change_scene("res://levels/test_nick.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta
@@ -223,7 +230,7 @@ func _on_ActionTimer_timeout():
 func begin_poof(position):
 	state = GAME_STATE.POOF
 	target_position = position
-	#warn player of a teleport with an indicator?
+	$PoofTimer.start()
 	
 func choose_action():
 	var choice = randi() % 4
@@ -284,7 +291,7 @@ func teleport(target=target_position):
 	if global_position.y < -100:
 		state = GAME_STATE.NEEDLE_CHARGE_AIR
 		$WindupTimer.start()
-		velocity.y = -400
+		#velocity.y = -400
 	# otherwise we're on the ground
 	else:
 		state = GAME_STATE.NEEDLE_CHARGE
@@ -330,10 +337,10 @@ func throw_spread_needles(n):
 		needle.rotation = needle.dir.angle()
 		needle.global_position = self.global_position + dir_to_player * 100
 		
-			
+func _on_PoofTimer_timeout():
+	if state == GAME_STATE.POOF:
+		teleport()	
 		
-		
-
 func _on_AnimatedSprite_animation_finished():
 	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:
 		state = GAME_STATE.IDLE
@@ -346,3 +353,4 @@ func _on_WindupTimer_timeout():
 		state = GAME_STATE.NEEDLE_THROW_AIR
 	elif state == GAME_STATE.NEEDLE_THROW:
 		state = GAME_STATE.IDLE
+	

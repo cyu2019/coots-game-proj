@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://player/AfterImage.gd" type="Script" id=1]
+[ext_resource path="res://nick/falco_after_image.gd" type="Script" id=1]
 [ext_resource path="res://nick/sprites/sideb/nick-sideb0004.png" type="Texture" id=2]
 
 [sub_resource type="CanvasItemMaterial" id=1]

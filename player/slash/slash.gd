@@ -8,7 +8,7 @@ extends Area2D
 const STRAIGHT_IMPACT_SCENE = preload("res://player/slash-impacts/straight_impact.tscn")
 const CROSS_IMPACT_SCENE = preload("res://player/slash-impacts/cross_impact.tscn")
 
-const PUSHBACK = Vector2(15000, 500)
+const PUSHBACK = Vector2(15000, 600)
 const OFFSET_AMOUNT = 125
 
 var hit = []
@@ -49,7 +49,10 @@ func _on_AnimatedSprite_animation_finished():
 func _on_Slash_body_entered(body):
 	if body in hit:
 		return
-	if "IS_ENEMY" in body:
+		
+	if "IS_ENEMY" in body and body.has_method('hurt'):
+		
+		Globals.frameFreeze(0.05, 0.4)
 		body.hurt()
 		$HitSound.play()
 		var impact1 = STRAIGHT_IMPACT_SCENE.instance()

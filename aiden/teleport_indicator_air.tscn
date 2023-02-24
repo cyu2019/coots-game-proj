@@ -11,6 +11,7 @@ modulate = Color( 1, 0.12549, 0.12549, 1 )
 self_modulate = Color( 1, 1, 1, 0.639216 )
 material = SubResource( 1 )
 scale = Vector2( 0.5, 0.5 )
+z_index = 90
 texture = ExtResource( 2 )
 script = ExtResource( 1 )
 

@@ -24,6 +24,8 @@ func spawn_impact():
 
 func _on_Needle_area_entered(area):
 	if area.name == "HurtBox" and "IS_PLAYER" in area.get_parent():
+		if Globals.player.state == Globals.player.GAME_STATE.DASH:
+			return
 		area.get_parent().hurt()
 	if "IS_NEEDLE" in area:
 		return

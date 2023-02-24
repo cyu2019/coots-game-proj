@@ -34,9 +34,9 @@ animations = [ {
 "name": "idle",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 18 ), ExtResource( 22 ), ExtResource( 17 ), ExtResource( 19 ) ],
-"loop": true,
-"name": "needle_charge",
+"frames": [ ExtResource( 20 ), ExtResource( 16 ), ExtResource( 12 ), ExtResource( 21 ) ],
+"loop": false,
+"name": "needle_throw",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 23 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 15 ) ],
@@ -44,14 +44,14 @@ animations = [ {
 "name": "needle_charge_air",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 20 ), ExtResource( 16 ), ExtResource( 12 ), ExtResource( 21 ) ],
-"loop": false,
-"name": "needle_throw",
-"speed": 10.0
-}, {
 "frames": [ ExtResource( 24 ), ExtResource( 25 ), ExtResource( 13 ), ExtResource( 14 ) ],
 "loop": false,
 "name": "needle_throw_air",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 18 ), ExtResource( 22 ), ExtResource( 17 ), ExtResource( 19 ) ],
+"loop": true,
+"name": "needle_charge",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 2 ), ExtResource( 8 ), ExtResource( 7 ), ExtResource( 5 ), ExtResource( 4 ) ],
@@ -71,6 +71,7 @@ script = ExtResource( 26 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 1 )
 animation = "idle"
+frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -82,8 +83,11 @@ shape = SubResource( 2 )
 wait_time = 2.0
 autostart = true
 
+[node name="PoofTimer" type="Timer" parent="."]
+one_shot = true
+
 [node name="WindupTimer" type="Timer" parent="."]
-wait_time = 0.8
+wait_time = 1.25
 
 [node name="FloorCast" type="RayCast2D" parent="."]
 enabled = true
@@ -96,4 +100,5 @@ one_shot = true
 
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]
+[connection signal="timeout" from="PoofTimer" to="." method="_on_PoofTimer_timeout"]
 [connection signal="timeout" from="WindupTimer" to="." method="_on_WindupTimer_timeout"]

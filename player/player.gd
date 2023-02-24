@@ -16,7 +16,7 @@ const max_speed = 800 # How fast the player will move (pixels/sec).
 const acceleration = 400
 
 const gravity = 3000
-const jump_speed = 1200
+const jump_speed = 1400
 var time_since_on_floor = 999
 const coyote_time = 0.1
 
@@ -26,6 +26,9 @@ const jump_buffer = 0.1
 const DASH_SPEED = 1400
 var dash_time = 0.25
 # ========================
+
+
+var cur_dir_intent = 0
 
 enum GAME_STATE {MOVEMENT, DASH, ATTACK, ATTACK_SLASHED}
 var state = GAME_STATE.MOVEMENT
@@ -58,6 +61,7 @@ func jump_cut():
 func hurt(damage=1):
 	if is_invincible or state == GAME_STATE.DASH:
 		return
+	Globals.frameFreeze(0.05, 0.5)
 	snap = Vector2.ZERO
 	$Camera2D.shake(400, 0.3)
 
@@ -73,7 +77,7 @@ func hurt(damage=1):
 	
 	is_invincible = true
 	$AnimatedSprite.modulate.a = 0.5
-	emit_signal("health_changed", -_damage)
+	emit_signal("health_changed", - damage)
 
 func _on_InvincibilityTimer_timeout():
 	$AnimatedSprite.modulate.a = 1
@@ -88,7 +92,7 @@ func _on_InvincibilityFlashTimer_timeout():
 		$AnimatedSprite.modulate.a = 1
 	
 func _on_HurtBox_body_entered(body):
-	if not body in enemies_in_hurtbox:
+	if not body in enemies_in_hurtbox and "IS_ENEMY" in body:
 		enemies_in_hurtbox.append(body)
 		
 func _on_HurtBox_body_exited(body):
@@ -149,7 +153,7 @@ func _process(delta):
 		process_movement(delta)
 		
 		#if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 2:
-		if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 1:
+		if $AnimatedSprite.animation.begins_with("attack") and $AnimatedSprite.frame >= 2:
 			spawn_slash()
 
 	elif state == GAME_STATE.ATTACK_SLASHED:
@@ -216,28 +220,34 @@ func process_movement(delta):
 	
 	var on_floor = is_on_floor()
 	
-	if Input.is_action_pressed("move_right"):
-		
+	
+	if Input.is_action_just_pressed("move_right"):
+		cur_dir_intent = 1
+	elif Input.is_action_just_pressed("move_left"): 
+		cur_dir_intent = -1
+			
+			
+	if Input.is_action_pressed("move_right") and cur_dir_intent != -1:
 		if velocity.x == 0 and is_on_floor() or is_on_floor() and not was_on_floor:
 			var poof = POOF_SCENE.instance()
 			poof.global_position = global_position
 			poof.flip_h = true
 			get_tree().get_root().add_child(poof)
 		velocity.x += acceleration
-		
 		should_flip = false
-	elif Input.is_action_pressed("move_left"):
+	elif Input.is_action_pressed("move_left") and cur_dir_intent != 1:
 		
 		if velocity.x == 0 and is_on_floor() or is_on_floor() and not was_on_floor:
 			var poof = POOF_SCENE.instance()
 			poof.global_position = global_position
-			
 			get_tree().get_root().add_child(poof)
-		
 		velocity.x -= acceleration
 		should_flip = true
 	else:
+		cur_dir_intent = 0
 		velocity.x += -sign(velocity.x) * acceleration
+	
+	
 	
 	velocity.x = sign(velocity.x) * min(max_speed, abs(velocity.x))
 	

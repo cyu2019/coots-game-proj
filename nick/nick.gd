@@ -1,6 +1,10 @@
 extends KinematicBody2D
 
 
+
+const LAND_PARTICLES_SCENE = preload("res://particles/LandParticles.tscn")
+const DEATH_PARTICLES_SCENE = preload("res://particles/DeathParticles.tscn")
+
 const IS_ENEMY = true
 
 # == numbers to tweak == 
@@ -51,7 +55,12 @@ func die():
 	state = GAME_STATE.DEAD
 	Globals.camera.global_position = global_position
 	get_tree().paused = true
+	
+	Engine.time_scale = 1.0
 	#queue_free()
+	var particles = DEATH_PARTICLES_SCENE.instance()
+	particles.global_position = global_position
+	get_tree().get_root().add_child(particles)
 
 func hurt(damage = 1):
 	health -= damage
@@ -80,10 +89,6 @@ func face_player():
 	$AnimatedSprite.flip_h = true if dir_to_player.x < 0 else false
 
 # called every frame
-"""
-Main Idea:
-Aiden will teleport around the stage, throw needles, then reset to the ground (if he ends up teleporting to the air)
-"""
 func _process(delta):	
 	$AnimatedSprite.modulate = $AnimatedSprite.modulate.linear_interpolate(base_color, delta * 20)
 	
@@ -106,41 +111,11 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
-		# come back to this and make a teleport + trail of nicks
-		# global_position = lerp(global_position, global_position + DASH_AMOUNT * Vector2(x_dir_to_player,0), delta * 5)
-		# process_movement_gravity(delta)
-		if $AnimatedSprite.frame == 4:
-				
-			var after_image = NICK_AFTER_IMAGE.instance()
-			after_image.global_position = global_position
-			after_image.flip($AnimatedSprite.flip_h)
-			get_tree().get_root().add_child(after_image)
-
-			var dash_dir = (target_position - global_position).normalized()
-			var total_distance = target_position.distance_to(global_position)
-
-			var cur_distance = after_image_distance
-			while cur_distance <= total_distance:
-				var after = NICK_AFTER_IMAGE.instance()
-				after.global_position = global_position + dash_dir * cur_distance
-				after.modulate.a = 1 - cur_distance / total_distance
-				after.flip($AnimatedSprite.flip_h)
-				get_tree().get_root().add_child(after)
-				cur_distance += after_image_distance
-			# move to the position
-			global_position = target_position
-			# face the player
-			face_player()
-			# change to needle state, this one is in the air
-			if global_position.y < -100:
-				begin_upb()
-			# otherwise we're on the ground
-			else:
-				state = GAME_STATE.LAND
-				velocity.x = 0
 
 	elif state == GAME_STATE.UPB_CHARGE:
 		$AnimatedSprite.play("upb_charge")
+		$FireParticles.emitting = true
+		$FireParticles.rotation = 0
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.UPB:
 		$AnimatedSprite.play("upb")
@@ -152,6 +127,7 @@ func _process(delta):
 			velocity.x = 0
 			state = GAME_STATE.LAND
 			Globals.camera.shake(400,0.3)
+			
 		elif dist_travelled >= MAX_DIST:
 			$AnimatedSprite.rotation = 0
 			velocity.x = 0
@@ -164,15 +140,10 @@ func _process(delta):
 		dist_travelled += delta * velocity.length()
 		process_movement(delta)
 	elif state == GAME_STATE.LASER_WINDUP:
-		# come back to this and fix projectiles to not spawn impact if you dash
-		$AnimatedSprite.play("laser")
-		if $AnimatedSprite.frame >= 4 and num_lasers == 0:
-			shoot_laser()
-			num_lasers += 1
+		$AnimatedSprite.play("laser_windup")
+		process_movement_gravity(delta)
 	elif state == GAME_STATE.LASER:
 		$AnimatedSprite.play("laser")
-		if $FloorCast.is_colliding():
-			state = GAME_STATE.LAND
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
 		$FireParticles.emitting = false
@@ -197,18 +168,13 @@ func process_movement(delta):
 # action timer
 func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
-		var allowed_actions = 1
-		if health <= floor(MAX_HEALTH * 2 / 3.0):
-			allowed_actions = 2
-		elif health <= floor(MAX_HEALTH / 3.0):
-			allowed_actions = 3
-		var choice = randi() % allowed_actions
+		var choice = randi() % 3
 		if choice == 0:
 			begin_sideb()	
 		elif choice == 1:
-			begin_sideb()
+			begin_laser()
 		else:
-			begin_sideb()
+			begin_upb()
 
 # state transition functions
 func begin_laser():
@@ -235,10 +201,11 @@ func begin_upb():
 	$WindupTimer.start()
 
 func shoot_laser():
+	$ShakeTimer.start()
 	var laser = LASER.instance()
 	get_tree().current_scene.add_child(laser)
 	face_player()
-	var dir_to_player = Vector2(x_dir_to_player, 0)
+	var dir_to_player = Vector2(-1 if $AnimatedSprite.flip_h else 1, 0)
 	laser.global_position = self.global_position + dir_to_player * 100
 	laser.rotation = dir_to_player.angle()
 	laser.dir = dir_to_player
@@ -256,12 +223,34 @@ func _on_WindupTimer_timeout():
 		state = GAME_STATE.UPB
 	elif state == GAME_STATE.LASER_WINDUP:
 		state = GAME_STATE.LASER
-	elif state == GAME_STATE.LASER:
-		if $FloorCast.is_colliding():
-			state = GAME_STATE.IDLE
-		else:
-			num_lasers = 0
-			state = GAME_STATE.LASER_WINDUP
-			$WindupTimer.start()
+		shoot_laser()
+		$WindDownTimer.start()
 	elif state == GAME_STATE.SIDEB:
-		state = GAME_STATE.IDLE
+		var after_image = NICK_AFTER_IMAGE.instance()
+		after_image.global_position = global_position
+		after_image.flip($AnimatedSprite.flip_h)
+		get_tree().get_root().add_child(after_image)
+
+		var dash_dir = (target_position - global_position).normalized()
+		var total_distance = target_position.distance_to(global_position)
+
+		var cur_distance = after_image_distance
+		while cur_distance <= total_distance:
+			var after = NICK_AFTER_IMAGE.instance()
+			after.global_position = global_position + dash_dir * cur_distance
+			after.modulate.a = 1 - cur_distance / total_distance
+			after.flip($AnimatedSprite.flip_h)
+			get_tree().get_root().add_child(after)
+			cur_distance += after_image_distance
+		# move to the position
+		global_position = target_position
+		face_player()
+		if global_position.y < -100:
+			begin_upb()
+		else:
+			velocity.x = 0
+			$WindDownTimer.start()
+			$ShakeTimer.start()
+		
+func _on_WindDownTimer_timeout():
+	state = GAME_STATE.IDLE

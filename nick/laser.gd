@@ -20,13 +20,16 @@ func destroy(check):
 func spawn_impact():
 	var impact = CROSS_IMPACT.instance()
 	impact.global_position = global_position
+	impact.modulate = Color.red
 	get_tree().get_root().add_child(impact)
 	impact.rotation = rand_range(-PI,PI)
 
 func _on_Needle_area_entered(area):
 	print(area.get_parent())
 	if area.name == "HurtBox" and "IS_PLAYER" in area.get_parent():
-		area.get_parent().hurt()
+		if Globals.player.state == Globals.player.GAME_STATE.DASH:
+			return
+		area.get_parent().hurt()		
 		destroy(true)
 		return
 	if "IS_LASER" in area:

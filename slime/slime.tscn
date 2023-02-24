@@ -41,9 +41,9 @@ animations = [ {
 "name": "jump",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 26 ), ExtResource( 18 ), ExtResource( 20 ) ],
+"frames": [ ExtResource( 23 ), ExtResource( 25 ), ExtResource( 24 ) ],
 "loop": false,
-"name": "stomp",
+"name": "air_kick_windup",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 10 ), ExtResource( 1 ) ],
@@ -51,14 +51,9 @@ animations = [ {
 "name": "stomp_windup",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 19 ), ExtResource( 17 ), ExtResource( 22 ), ExtResource( 21 ) ],
+"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 4 ) ],
 "loop": false,
-"name": "land",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 15 ), ExtResource( 16 ) ],
-"loop": false,
-"name": "air_kick",
+"name": "kick_windup",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 6 ), ExtResource( 14 ) ],
@@ -66,14 +61,19 @@ animations = [ {
 "name": "kick",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 23 ), ExtResource( 25 ), ExtResource( 24 ) ],
+"frames": [ ExtResource( 15 ), ExtResource( 16 ) ],
 "loop": false,
-"name": "air_kick_windup",
+"name": "air_kick",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 4 ) ],
+"frames": [ ExtResource( 26 ), ExtResource( 18 ), ExtResource( 20 ) ],
 "loop": false,
-"name": "kick_windup",
+"name": "stomp",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 19 ), ExtResource( 17 ), ExtResource( 22 ), ExtResource( 21 ) ],
+"loop": false,
+"name": "land",
 "speed": 10.0
 } ]
 
@@ -123,6 +123,7 @@ script = ExtResource( 27 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 1 )
 animation = "idle"
+frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -153,6 +154,11 @@ speed_scale = 1.5
 process_material = SubResource( 8 )
 texture = ExtResource( 28 )
 
+[node name="KickTimer" type="Timer" parent="."]
+wait_time = 0.8
+one_shot = true
+
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]
 [connection signal="timeout" from="WindupTimer" to="." method="_on_WindupTimer_timeout"]
+[connection signal="timeout" from="KickTimer" to="." method="_on_KickTimer_timeout"]
