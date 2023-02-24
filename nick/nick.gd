@@ -24,7 +24,7 @@ const shake_amount = 10
 var base_color = Color.white
 
 # ========================
-export(PackedScene) var LASER = preload("res://nick/laser.tscn")
+var LASER = preload("res://nick/laser.tscn")
 enum GAME_STATE {IDLE, 
 				 SIDEB, 
 				 UPB_CHARGE,

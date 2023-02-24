@@ -29,11 +29,6 @@ animations = [ {
 "name": "idle",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 7 ), ExtResource( 13 ), ExtResource( 4 ), ExtResource( 12 ), ExtResource( 8 ) ],
-"loop": false,
-"name": "laser",
-"speed": 10.0
-}, {
 "frames": [ ExtResource( 3 ) ],
 "loop": true,
 "name": "laser_windup",
@@ -47,6 +42,11 @@ animations = [ {
 "frames": [ ExtResource( 15 ) ],
 "loop": false,
 "name": "upb",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 3 ), ExtResource( 7 ), ExtResource( 13 ), ExtResource( 4 ), ExtResource( 12 ), ExtResource( 8 ) ],
+"loop": false,
+"name": "laser",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 17 ), ExtResource( 19 ), ExtResource( 20 ) ],
