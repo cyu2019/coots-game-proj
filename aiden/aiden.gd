@@ -17,6 +17,10 @@ const MAX_NEEDLES = 3
 const shake_amount = 10
 var base_color = Color.white
 
+# collision box
+# position: -3, 13.25
+# scale: 5, 8
+
 # ========================
 
 export(PackedScene) var NEEDLE = preload("res://aiden/needle.tscn")
@@ -53,6 +57,8 @@ var burst_amt = 0
 
 # called on node beginning
 func _ready():
+	$CollisionShape2D.position = Vector2(-3, 13.25)
+	$CollisionShape2D.scale = Vector2(5,8)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
 	
@@ -159,6 +165,8 @@ func _process(delta):
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
+		$CollisionShape2D.position = Vector2(-3, 13.25)
+		$CollisionShape2D.scale = Vector2(5,8)
 		face_player()
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
@@ -228,6 +236,8 @@ func _on_ActionTimer_timeout():
 
 # state transition functions
 func begin_poof(position):
+	$CollisionShape2D.position = Vector2(5,40)
+	$CollisionShape2D.scale = Vector2(8,6)
 	state = GAME_STATE.POOF
 	target_position = position
 	$PoofTimer.start()
@@ -241,6 +251,8 @@ func choose_action():
 	if choice == 0:
 		
 		if global_position.x < 0:
+			$CollisionShape2D.position = Vector2(10, 25)
+			$CollisionShape2D.scale = Vector2(7,7)
 			state = GAME_STATE.NEEDLE_CHARGE
 			$WindupTimer.start()
 		else:
@@ -248,6 +260,8 @@ func choose_action():
 	# poof to bottom right corner, then throw needle at player
 	elif choice == 1:
 		if global_position.x > 0:
+			$CollisionShape2D.position = Vector2(10, 25)
+			$CollisionShape2D.scale = Vector2(7,7)
 			state = GAME_STATE.NEEDLE_CHARGE
 			$WindupTimer.start()
 		else:
@@ -289,11 +303,15 @@ func teleport(target=target_position):
 	face_player()
 	# change to needle state, this one is in the air
 	if global_position.y < -100:
+		$CollisionShape2D.position = Vector2(-5, 0)
+		$CollisionShape2D.scale = Vector2(7,6)
 		state = GAME_STATE.NEEDLE_CHARGE_AIR
 		$WindupTimer.start()
 		#velocity.y = -400
 	# otherwise we're on the ground
 	else:
+		$CollisionShape2D.position = Vector2(10, 25)
+		$CollisionShape2D.scale = Vector2(7,7)
 		state = GAME_STATE.NEEDLE_CHARGE
 		$WindupTimer.start()
 	
@@ -347,9 +365,13 @@ func _on_AnimatedSprite_animation_finished():
 
 func _on_WindupTimer_timeout():
 	if state == GAME_STATE.NEEDLE_CHARGE:
+		$CollisionShape2D.position = Vector2(30,40)
+		$CollisionShape2D.scale = Vector2(9,6)
 		state = GAME_STATE.NEEDLE_THROW
 		$WindupTimer.start()
 	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
+		$CollisionShape2D.position = Vector2(0,0)
+		$CollisionShape2D.scale = Vector2(9,6)
 		state = GAME_STATE.NEEDLE_THROW_AIR
 	elif state == GAME_STATE.NEEDLE_THROW:
 		state = GAME_STATE.IDLE
