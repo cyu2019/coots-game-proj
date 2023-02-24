@@ -23,6 +23,10 @@ const MAX_HEALTH = 30
 const shake_amount = 10
 var base_color = Color.white
 
+# collision box
+# position: 3, 0
+# scale: 7, 10
+
 # ========================
 export(PackedScene) var LASER = preload("res://nick/laser.tscn")
 enum GAME_STATE {IDLE, 
@@ -51,6 +55,8 @@ var burst_amt = 0
 
 # called on node beginning
 func _ready():
+	$CollisionShape2D.position = Vector2(3,0)
+	$CollisionShape2D.scale = Vector2(7,10)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
 
@@ -112,6 +118,8 @@ func _process(delta):
 	
 	if state == GAME_STATE.IDLE:
 		face_player()
+		$CollisionShape2D.position = Vector2(3,0)
+		$CollisionShape2D.scale = Vector2(7,10)
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.SIDEB:
@@ -129,6 +137,7 @@ func _process(delta):
 		# starts in the air and goes to ground
 		if $FloorCast.is_colliding() and target_position.y < -100:
 			$AnimatedSprite.rotation = 0
+			$CollisionShape2D.rotation = 0
 			velocity.x = 0
 			state = GAME_STATE.LAND
 			Globals.camera.shake(400,0.3)
@@ -139,6 +148,7 @@ func _process(delta):
 				state = GAME_STATE.LAND
 		elif dist_travelled >= MAX_DIST:
 			$AnimatedSprite.rotation = 0
+			$CollisionShape2D.rotation = 0
 			velocity.x = 0
 			if burst_counter > 0:
 				burst_counter -= 1
@@ -193,11 +203,15 @@ func _on_ActionTimer_timeout():
 
 # state transition functions
 func begin_laser():
+	$CollisionShape2D.position = Vector2(3,0)
+	$CollisionShape2D.scale = Vector2(6,9)
 	num_lasers = 0
 	state = GAME_STATE.LASER_WINDUP
 	$WindupTimer.start()
 
 func begin_sideb():
+	$CollisionShape2D.position = Vector2(3,25)
+	$CollisionShape2D.scale = Vector2(8,7)
 	state = GAME_STATE.SIDEB
 	face_player()
 	var dir_to_player = Vector2(-1 if $AnimatedSprite.flip_h else 1, 0)
@@ -209,6 +223,8 @@ func begin_sideb():
 	$WindupTimer.start()
 
 func begin_upb():
+	$CollisionShape2D.position = Vector2(3,0)
+	$CollisionShape2D.scale = Vector2(6,10)
 	state = GAME_STATE.UPB_CHARGE
 	face_player()
 	dist_travelled = 0
@@ -231,11 +247,14 @@ func _on_AnimatedSprite_animation_finished():
 
 func _on_WindupTimer_timeout():
 	if state == GAME_STATE.UPB_CHARGE:
+		$CollisionShape2D.position = Vector2(-15,0)
+		$CollisionShape2D.scale = Vector2(5,10)
 		var upb_dir = (Globals.player.global_position - global_position).normalized()
 		velocity = upb_dir * UPB_SPEED
 		if velocity.length() == 0:
 			velocity = Vector2.RIGHT * UPB_SPEED
 		$AnimatedSprite.rotation = velocity.angle() + PI/2
+		$CollisionShape2D.rotation = velocity.angle() + PI/2
 		Globals.camera.shake(400,0.3)
 		state = GAME_STATE.UPB
 	elif state == GAME_STATE.LASER_WINDUP:

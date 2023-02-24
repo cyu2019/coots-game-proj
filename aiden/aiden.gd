@@ -74,7 +74,7 @@ func die():
 	$CollisionShape2D.queue_free()
 	state = GAME_STATE.DEAD
 	Engine.time_scale = 1.0
-	Globals.camera.global_position = global_position
+	Globals.camera.globadddddddddddddddddl_position = global_position
 	get_tree().paused = true
 	if is_instance_valid(teleport_indicator):
 		teleport_indicator.queue_free()
