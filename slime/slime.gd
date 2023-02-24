@@ -19,6 +19,10 @@ const radius = 50
 
 const shake_amount = 10
 
+# collision box
+# position: 0,0
+# scale: 6,10
+
 # ========================
 
 # COMBO 1 = Falcon stomp
@@ -52,6 +56,8 @@ var burst_amt = 0
 
 # called on node beginning
 func _ready():
+	$CollisionShape2D.position = Vector2(0,0)
+	$CollisionShape2D.scale = Vector2(6,10)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
 
@@ -126,6 +132,8 @@ func _process(delta):
 	snap = Vector2.DOWN * 16
 	
 	if state == GAME_STATE.IDLE:
+		$CollisionShape2D.position = Vector2(0,0)
+		$CollisionShape2D.scale = Vector2(6,10)
 		$FireParticles.emitting = false
 		face_player()
 		$AnimatedSprite.play("idle")
@@ -136,6 +144,8 @@ func _process(delta):
 	elif state == GAME_STATE.STOMP:
 		$AnimatedSprite.play("stomp")
 		if $FloorCast.is_colliding():
+			$CollisionShape2D.position = Vector2(5,10)
+			$CollisionShape2D.scale = Vector2(7,8)
 			state = GAME_STATE.LAND
 			Globals.camera.shake(400,0.5)
 			
@@ -167,6 +177,8 @@ func _process(delta):
 		
 		if $FloorCast.is_colliding():
 			velocity.x = 0
+			$CollisionShape2D.position = Vector2(5,10)
+			$CollisionShape2D.scale = Vector2(7,8)
 			state = GAME_STATE.LAND
 			
 			var particles = LAND_PARTICLES_SCENE.instance()
@@ -217,14 +229,20 @@ func _on_ActionTimer_timeout():
 
 # state transition functions
 func begin_stomp():
+	$CollisionShape2D.position = Vector2(0,-20)
+	$CollisionShape2D.scale = Vector2(6,8)
 	target_position = Vector2(Globals.player.global_position.x, -ATTACK_HEIGHT)
 	state = GAME_STATE.STOMP_WINDUP
 	$WindupTimer.start()
 func begin_kick():
+	$CollisionShape2D.position = Vector2(-5,0)
+	$CollisionShape2D.scale = Vector2(8,10)
 	state = GAME_STATE.KICK_WINDUP
 	face_player()
 	$WindupTimer.start()
 func begin_air_kick():
+	$CollisionShape2D.position = Vector2(-5,0)
+	$CollisionShape2D.scale = Vector2(8,10)
 	state = GAME_STATE.AIR_KICK_WINDUP
 	# var dir = 1
 	# if rand_range(-1,1) >= 0:
@@ -239,8 +257,12 @@ func _on_AnimatedSprite_animation_finished():
 
 func _on_WindupTimer_timeout():
 	if state == GAME_STATE.STOMP_WINDUP:
+		$CollisionShape2D.position = Vector2(-10,-10)
+		$CollisionShape2D.scale = Vector2(8,10)
 		state = GAME_STATE.STOMP
 	elif state == GAME_STATE.KICK_WINDUP:
+		$CollisionShape2D.position = Vector2(20,-15)
+		$CollisionShape2D.scale = Vector2(11,7.5)
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
 		Globals.camera.shake(400,0.3)
@@ -251,6 +273,8 @@ func _on_WindupTimer_timeout():
 		if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
 			velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
 		Globals.camera.shake(400,0.3)
+		$CollisionShape2D.position = Vector2(5,30)
+		$CollisionShape2D.scale = Vector2(8,10)
 		state = GAME_STATE.AIR_KICK
 		
 func _on_KickTimer_timeout():
