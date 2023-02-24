@@ -170,11 +170,11 @@ func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
 		var choice = randi() % 3
 		if choice == 0:
-			begin_sideb()	
+			begin_laser()	
 		elif choice == 1:
 			begin_laser()
 		else:
-			begin_upb()
+			begin_laser()
 
 # state transition functions
 func begin_laser():
