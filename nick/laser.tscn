@@ -4,7 +4,6 @@
 [ext_resource path="res://nick/sprites/laser.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 7.63333, 0.999878 )
 
 [node name="Laser" type="Area2D"]
 rotation = -6.28319
