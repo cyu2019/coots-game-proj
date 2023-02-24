@@ -13,6 +13,7 @@ const gravity = 1500
 const DASH_AMOUNT = 500
 const NICK_AFTER_IMAGE = preload("res://nick/after_image.tscn")
 const after_image_distance = 100
+const STAGE_EDGE_X = 900
 # upb
 const UPB_SPEED = 1000
 const ATTACK_HEIGHT = 300
@@ -44,6 +45,12 @@ var target_position = Vector2(0,0)
 var x_dir_to_player
 var health = MAX_HEALTH
 
+# === combat vars
+var has_thrown_needles = false
+var num_needles = 3
+var burst_counter = 0
+var burst_amt = 0
+
 # called on node beginning
 func _ready():
 	Globals.enemy1 = self
@@ -68,10 +75,10 @@ func hurt(damage = 1):
 	$ShakeTimer.start()
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
-	if health == floor(MAX_HEALTH / 2.0):
-		#$WindupTimer.wait_time = 0.5
-		$ActionTimer.wait_time = 2
-	
+	if health <= floor(MAX_HEALTH/2):
+		base_color = Color.purple
+		burst_amt = 3
+		$ActionTimer.wait_time = 1.5
 	if health <= 0:
 		die()
 	
@@ -111,6 +118,9 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
+		if burst_counter > 0:
+			begin_sideb()
+			burst_counter -= 1
 
 	elif state == GAME_STATE.UPB_CHARGE:
 		$AnimatedSprite.play("upb_charge")
@@ -168,13 +178,16 @@ func process_movement(delta):
 # action timer
 func _on_ActionTimer_timeout():
 	if state == GAME_STATE.IDLE:
-		var choice = randi() % 3
+		var num_actions = 3
+		if global_position.x >= STAGE_EDGE_X or global_position.x <= -STAGE_EDGE_X:
+			num_actions = 2
+		var choice = randi() % num_actions
 		if choice == 0:
-			begin_sideb()	
+			begin_laser()	
 		elif choice == 1:
 			begin_laser()
 		else:
-			begin_upb()
+			begin_laser()
 
 # state transition functions
 func begin_laser():
@@ -187,6 +200,10 @@ func begin_sideb():
 	face_player()
 	var dir_to_player = Vector2(x_dir_to_player, 0)
 	target_position = global_position + dir_to_player * DASH_AMOUNT
+	if target_position.x < -STAGE_EDGE_X:
+		target_position.x = -STAGE_EDGE_X
+	elif target_position.x > STAGE_EDGE_X:
+		target_position.x = STAGE_EDGE_X
 	$WindupTimer.start()
 
 func begin_upb():

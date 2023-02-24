@@ -10,7 +10,7 @@ const jump_speed = 300
 
 var KICK_SPEED = 1300
 
-const STAGE_EDGE_X = 800
+const STAGE_EDGE_X = 900
 const ATTACK_HEIGHT = 500
 
 const MAX_HEALTH = 50
