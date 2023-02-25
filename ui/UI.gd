@@ -6,11 +6,24 @@ extends CanvasLayer
 # var b = "text"
 
 var health = 8
+export var level = 0
+var BGM
 
 enum {INTRO, DEFAULT, DEAD, DEFEATED_BOSS, DEFEATED_BOSS_ENDING}
 var state = DEFAULT
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	print (level)
+	if level == 0:
+		BGM = $BGM
+	elif level == 1:
+		BGM = $BGM2
+	else:
+		BGM = $BGM3
+	
+	BGM.play()	
+		
+	
 	Globals.ui = self
 	$FadeToBlack.visible = true
 	$BossHealth.value = 100

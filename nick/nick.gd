@@ -19,7 +19,7 @@ const UPB_SPEED = 1000
 const ATTACK_HEIGHT = 300
 const MAX_DIST = 500
 # camera and character
-const MAX_HEALTH = 30
+const MAX_HEALTH = 60
 const shake_amount = 10
 var base_color = Color.white
 
@@ -80,10 +80,15 @@ func hurt(damage = 1):
 	$ShakeTimer.start()
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
-	if health <= floor(MAX_HEALTH / 2):
+	if health <= floor(MAX_HEALTH / 3):
+		base_color = Color.orangered
+		burst_amt = 3
+		$ActionTimer.wait_time = 1.5
+	elif health <= floor(MAX_HEALTH / 3 * 2):
 		base_color = Color.orange
 		burst_amt = 2
 		$ActionTimer.wait_time = 1.5
+	
 	if health <= 0:
 		die()
 	

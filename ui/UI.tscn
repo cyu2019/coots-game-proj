@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
 [ext_resource path="res://ui/heart.png" type="Texture" id=2]
@@ -7,6 +7,8 @@
 [ext_resource path="res://music/nick.ogg" type="AudioStream" id=5]
 [ext_resource path="res://ui/vignette.png" type="Texture" id=6]
 [ext_resource path="res://ui/PauseMenu.gd" type="Script" id=7]
+[ext_resource path="res://music/aiden.ogg" type="AudioStream" id=8]
+[ext_resource path="res://music/slime.ogg" type="AudioStream" id=9]
 
 [node name="UI" type="CanvasLayer"]
 pause_mode = 2
@@ -40,8 +42,15 @@ margin_right = 512.0
 margin_bottom = -20.0
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 9 )
+bus = "Music"
+
+[node name="BGM2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 8 )
+bus = "Music"
+
+[node name="BGM3" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 5 )
-autoplay = true
 bus = "Music"
 
 [node name="HurtVignette" type="TextureRect" parent="."]

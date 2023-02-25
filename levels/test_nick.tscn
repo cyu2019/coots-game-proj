@@ -79,6 +79,7 @@ shape = SubResource( 1 )
 position = Vector2( 499, -38 )
 
 [node name="UI" parent="." instance=ExtResource( 4 )]
+level = 2
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 

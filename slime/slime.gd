@@ -214,7 +214,6 @@ func process_movement_gravity(delta):
 func process_movement(_delta):
 	if is_on_floor():
 		velocity.y = 0
-	print(velocity)
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
 # action timer

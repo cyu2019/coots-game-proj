@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/aiden.ogg-ef9531f3f6c03954c728a8641ec19ebe.oggstr"
+
+[deps]
+
+source_file="res://music/aiden.ogg"
+dest_files=[ "res://.import/aiden.ogg-ef9531f3f6c03954c728a8641ec19ebe.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
