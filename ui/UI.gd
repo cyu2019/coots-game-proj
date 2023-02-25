@@ -23,6 +23,7 @@ var in_progress = false
 onready var firsttext = $MainDialogueBG
 onready var firstbackground = $MainDialogueBG
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$BossHealth.visible = false
@@ -233,4 +234,5 @@ func start_text(text_key):
 		selected_text = scene_text[text_key].duplicate()
 		push_line_to_main_dialogue()
 
-# func push_line_to_secondary_dialogue(str):
+func push_line_to_secondary_dialogue(line):
+	pass
