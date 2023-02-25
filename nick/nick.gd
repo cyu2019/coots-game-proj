@@ -135,9 +135,10 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.IDLE:
 		face_player()
-		$CollisionShape2D.position = Vector2(3,0)
-		$CollisionShape2D.scale = Vector2(7,10)
-		$AnimatedSprite.play("idle")
+		if is_instance_valid($CollisionShape2D):
+			$CollisionShape2D.position = Vector2(3,0)
+			$CollisionShape2D.scale = Vector2(7,10)
+			$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.SIDEB:
 		$AnimatedSprite.play("sideb")
@@ -195,8 +196,9 @@ func _process(delta):
 		modulate.a -= delta / 2
 		
 		if modulate.a <= 0:
+			get_tree().paused = false
 			queue_free()
-			Globals.ui.transition_scene("res://levels/test_slime.tscn")
+			Globals.ui.transition_scene("res://title-screen/title.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta
