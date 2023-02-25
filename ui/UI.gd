@@ -20,11 +20,8 @@ var scene_text_file = "res://dialogue/slime.json"
 var scene_text = {}
 var selected_text = []
 var in_progress = false
-onready var firstbackground = $FirstDialogue/Background
-# onready var secondbackground = $SecondDialogue/Background
-onready var firsttext = $FirstDialogue/MainDialogue
-# onready var secondtext = $SecondDialogue/SecondaryDialogue
-
+onready var firsttext = $MainDialogueBG
+onready var firstbackground = $MainDialogueBG
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -154,7 +151,7 @@ func allow_pause(delta):
 func play_death_sounds(level=0):
 	$DeathSound.play()
 	get_tree().paused = true
-	start_text("End")
+	#start_text("End")
 	if level == 0:
 		$SlimeDeath.play()
 	elif level == 1:
