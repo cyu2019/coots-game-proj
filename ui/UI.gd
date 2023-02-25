@@ -47,7 +47,11 @@ func _ready():
 	$BossHealth.value = 100
 	Globals.camera.zoom = Vector2(0.3,0.3)
 	Globals.player.connect("health_changed", self, "_on_health_change")
-	OS.window_maximized = true
+	
+	$MainDialogueBG.visible = false
+	$MainDialogue.visible = false
+	$SecondaryDialogueBG.visible = false
+	$SecondaryDialogue.visible = false	
 func _on_health_change(amt):
 	health += amt
 	

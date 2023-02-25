@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="Coots-game-proj"
-run/main_scene="res://levels/test_slime.tscn"
+run/main_scene="res://title-screen/title.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -28,6 +28,7 @@ window/size/height=720
 display=false
 physics=false
 phys=false
+scene=false
 
 [importer_defaults]
 
