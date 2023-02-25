@@ -1,10 +1,6 @@
 extends CanvasLayer
 
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
 var health = 9
 export var level = 0
 var BGM
@@ -36,16 +32,25 @@ func _ready():
 	elif level == 1:
 		scene_text_file = "res://dialogue/aiden.json"
 		BGM = $BGM2
-	else:
+	elif level == 2:
 		scene_text_file = "res://dialogue/nick.json"
 		BGM = $BGM3
+	else:
+		BGM = $BGM
 	start()
-	state = FADE_IN
-	Globals.ui = self
-	$FadeToBlack.visible = true
-	$FadeToBlack.modulate.a = 1
+	print(level)
+	if level < 3:
+		state = FADE_IN
+		$FadeToBlack.visible = true
+		$FadeToBlack.modulate.a = 1
+		Globals.camera.zoom = Vector2(0.3,0.3)
+	else:
+		state = DEFAULT
+		Globals.player.state = Globals.player.GAME_STATE.MOVEMENT
+		Globals.camera.zoom = Vector2(1,1)
+		Globals.camera.return_to_player()
 	$BossHealth.value = 100
-	Globals.camera.zoom = Vector2(0.3,0.3)
+	Globals.ui = self
 	Globals.player.connect("health_changed", self, "_on_health_change")
 	OS.window_maximized = true
 func _on_health_change(amt):
@@ -107,7 +112,7 @@ func process_fade_in(delta):
 	Globals.camera.zoom = Globals.camera.zoom.move_toward(Vector2(0.5,0.5), delta / 4)
 	$FadeToBlack.modulate.a -= delta / 2
 	if $FadeToBlack.modulate.a <= 0:
-		print("ba")
+		#print("ba")
 		state = INTRO
 		$IntroTimer.start()
 		$SecondarySubtitleTimer.start()
@@ -119,13 +124,12 @@ func process_fade_in(delta):
 		elif level == 1:
 			scene_text_file = "res://dialogue/aiden.json"
 			$LabelHolder.get_node("Label2").visible = true
-		else:
+		elif level == 2:
 			scene_text_file = "res://dialogue/nick.json"
 			$LabelHolder.get_node("Label3").visible = true
 		
 		$IntroSting.play()
 		$IntroSting2.play()
-		
 		Globals.camera.move_to(Globals.enemy1.global_position)
 	
 func process_fade(delta):
@@ -155,7 +159,7 @@ func play_death_sounds(level=0):
 		$SlimeDeath.play()
 	elif level == 1:
 		$AidenDeath.play()
-	else:
+	elif level == 2:
 		$NickDeath.play()
 
 func play_phase_up_sound():
@@ -191,7 +195,7 @@ func _on_SecondarySubtitleTimer_timeout():
 		$LabelHolder.get_node("SecondaryLabel1").visible = true
 	elif level == 1:
 		$LabelHolder.get_node("SecondaryLabel2").visible = true
-	else:
+	elif level == 2:
 		$LabelHolder.get_node("SecondaryLabel3").visible = true
 
 
