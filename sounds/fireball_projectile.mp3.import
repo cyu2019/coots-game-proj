@@ -11,5 +11,5 @@ dest_files=[ "res://.import/fireball_projectile.mp3-8c205b5ac73ad144d59a0b8a1d67
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/needle-charging.mp3-c1f746eea8dd0e7647a82e09260e3d07.mp3str"
+
+[deps]
+
+source_file="res://sounds/needle-charging.mp3"
+dest_files=[ "res://.import/needle-charging.mp3-c1f746eea8dd0e7647a82e09260e3d07.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

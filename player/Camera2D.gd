@@ -7,10 +7,29 @@ onready var tween = $Tween
 var shake_amount = 0
 var default_offset = offset
 
+const DEFAULT_LIMIT = 1100
+
+func unlimit():
+	limit_left = -100000
+	limit_right = 100000
+
+func limit():
+	limit_left = DEFAULT_LIMIT
+	limit_right = -DEFAULT_LIMIT
+
+func move_to(pos):
+	unlimit()
+	global_position = pos
+
+func return_to_player():
+	limit()	
+	position = Vector2.ZERO
+	
 
 func _ready():
 	Globals.camera = self
 	set_process(false)
+	
 
 
 func _process(delta):

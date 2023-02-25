@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/upb-charge.mp3-3193eb96224c87ab8449dc363f6c3fdf.mp3str"
+
+[deps]
+
+source_file="res://sounds/upb-charge.mp3"
+dest_files=[ "res://.import/upb-charge.mp3-3193eb96224c87ab8449dc363f6c3fdf.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

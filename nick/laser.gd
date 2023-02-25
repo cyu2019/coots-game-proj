@@ -8,13 +8,19 @@ const IS_LASER = true
 
 const CROSS_IMPACT = preload("res://player/slash-impacts/cross_impact.tscn")
 
+var destroyed = false
+
 func _process(delta):
-	global_position += SPEED * dir * delta
+	if not destroyed:
+		global_position += SPEED * dir * delta
 
 func destroy(check):
 	if(check):
 		spawn_impact()
-	queue_free()
+	$Sprite.visible = false
+	$CollisionShape2D.disabled = true
+	$BreakSound.play()
+	destroyed = true
 	#Globals.camera.shake(200,0.2)
 
 func spawn_impact():
@@ -25,23 +31,29 @@ func spawn_impact():
 	impact.rotation = rand_range(-PI,PI)
 
 func _on_Needle_area_entered(area):
-	print(area.get_parent())
-	if area.name == "HurtBox" and "IS_PLAYER" in area.get_parent():
-		if Globals.player.state == Globals.player.GAME_STATE.DASH:
+	if not destroyed:
+		if area.name == "HurtBox" and "IS_PLAYER" in area.get_parent():
+			if Globals.player.state == Globals.player.GAME_STATE.DASH:
+				return
+			area.get_parent().hurt()		
+			destroy(true)
 			return
-		area.get_parent().hurt()		
-		destroy(true)
-		return
-	if "IS_LASER" in area:
-		return
-	destroy(true) # Replace with function body.
+		if "IS_LASER" in area:
+			return
+		destroy(true) # Replace with function body.
 
 
 func _on_Needle_body_entered(body):
-	if "IS_ENEMY" in body:
-		return
-	destroy(true) # Replace with function body.
+	if not destroyed:
+		if "IS_ENEMY" in body:
+			return
+		destroy(true) # Replace with function body.
 
 
 func _on_VisibilityNotifier2D_screen_exited():
-	destroy(true) # Replace with function body.
+	queue_free()
+
+
+func _on_BreakSound_finished():
+	queue_free()
+	pass # Replace with function body.

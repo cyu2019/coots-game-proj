@@ -78,9 +78,10 @@ func warn():
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
+	$DeathSound.play()
 	state = GAME_STATE.DEAD
 	Engine.time_scale = 1.0
-	Globals.camera.globadddddddddddddddddl_position = global_position
+	Globals.camera.move_to(global_position)
 	get_tree().paused = true
 	if is_instance_valid(teleport_indicator):
 		teleport_indicator.queue_free()
@@ -179,6 +180,7 @@ func _process(delta):
 		if burst_counter > 0:
 			warn()
 		if $AnimatedSprite.frame >= 2 and has_thrown_needles == false:
+			$NeedleThrow.play()
 			throw_needles(num_needles)
 			if burst_counter > 0:
 				teleport()
@@ -187,6 +189,7 @@ func _process(delta):
 		#process_movement_gravity(delta)
 	elif state == GAME_STATE.NEEDLE_CHARGE:
 		$AnimatedSprite.play("needle_charge")
+		
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.NEEDLE_THROW_AIR:
 		$AnimatedSprite.play("needle_throw_air")
@@ -194,6 +197,7 @@ func _process(delta):
 			warn()
 		if $AnimatedSprite.frame >= 2 and has_thrown_needles == false:
 			throw_needles(num_needles)
+			$NeedleThrow.play()
 			if burst_counter > 0:
 				teleport()
 				target_position = get_random_pos()
@@ -202,11 +206,12 @@ func _process(delta):
 		if has_thrown_needles:
 			process_movement_gravity(delta)
 		
-		if $FloorCast.is_colliding():
+		if is_on_floor():
 			state = GAME_STATE.LAND
 		
 	elif state == GAME_STATE.NEEDLE_CHARGE_AIR:
 		$AnimatedSprite.play("needle_charge_air")
+		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
 		#process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
 		$AnimatedSprite.play("idle")
@@ -214,7 +219,7 @@ func _process(delta):
 	elif state == GAME_STATE.DEAD:
 		modulate.a -= delta
 		if modulate.a <= 0:
-			Globals.camera.position = Vector2(0,0)
+			Globals.camera.return_to_player()
 			get_tree().paused = false
 			queue_free()
 			get_tree().change_scene("res://levels/test_nick.tscn")
@@ -224,7 +229,7 @@ func process_movement_gravity(delta):
 	process_movement(delta)
 
 func process_movement(delta):
-	if $FloorCast.is_colliding():
+	if is_on_floor():
 		velocity.y = 0
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
@@ -263,6 +268,7 @@ func choose_action():
 			$CollisionShape2D.position = Vector2(10, 25)
 			$CollisionShape2D.scale = Vector2(7,7)
 			state = GAME_STATE.NEEDLE_CHARGE
+			$NeedleCharge.play()
 			$WindupTimer.start()
 		else:
 			begin_poof(br_corner)
@@ -276,6 +282,8 @@ func choose_action():
 func teleport(target=target_position):
 	if is_instance_valid(teleport_indicator):
 		teleport_indicator.queue_free()
+	
+	$PoofSound.play()
 	
 	var smoke = SMOKE_PARTICLES_SCENE.instance()
 	smoke.global_position = global_position
@@ -306,6 +314,7 @@ func teleport(target=target_position):
 		$CollisionShape2D.position = Vector2(-5, 0)
 		$CollisionShape2D.scale = Vector2(7,6)
 		state = GAME_STATE.NEEDLE_CHARGE_AIR
+		$NeedleCharge.play()
 		$WindupTimer.start()
 		#velocity.y = -400
 	# otherwise we're on the ground
@@ -313,6 +322,7 @@ func teleport(target=target_position):
 		$CollisionShape2D.position = Vector2(10, 25)
 		$CollisionShape2D.scale = Vector2(7,7)
 		state = GAME_STATE.NEEDLE_CHARGE
+		$NeedleCharge.play()
 		$WindupTimer.start()
 	
 	
@@ -328,7 +338,7 @@ func throw_needles(n):
 
 func throw_straight_needles(n):
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	if $FloorCast.is_colliding():
+	if is_on_floor():
 		dir_to_player = Vector2(1,0) * (-1 if $AnimatedSprite.flip_h else 1)
 	for i in range(n):
 		var needle = NEEDLE.instance()
@@ -341,7 +351,7 @@ func throw_straight_needles(n):
 func throw_spread_needles(n):
 	
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
-	if $FloorCast.is_colliding():
+	if is_on_floor():
 		dir_to_player = Vector2(1,0) * (-1 if $AnimatedSprite.flip_h else 1)
 	
 	var spread = PI/6
@@ -362,6 +372,8 @@ func _on_PoofTimer_timeout():
 func _on_AnimatedSprite_animation_finished():
 	if $AnimatedSprite.animation == "idle" and state == GAME_STATE.LAND:
 		state = GAME_STATE.IDLE
+	if $AnimatedSprite.animation == "needle_charge" or $AnimatedSprite.animation == "needle_charge_air":
+		$NeedleCharge.play()
 
 func _on_WindupTimer_timeout():
 	if state == GAME_STATE.NEEDLE_CHARGE:

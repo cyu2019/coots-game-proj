@@ -38,6 +38,16 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
+"frames": [ ExtResource( 5 ), ExtResource( 6 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 11 ), ExtResource( 19 ) ],
+"loop": true,
+"name": "idle",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 15 ) ],
+"loop": true,
+"name": "dash",
+"speed": 5.0
+}, {
 "frames": [ ExtResource( 25 ), ExtResource( 26 ), ExtResource( 1 ), ExtResource( 24 ) ],
 "loop": false,
 "name": "attack",
@@ -48,34 +58,24 @@ animations = [ {
 "name": "attack_down",
 "speed": 15.0
 }, {
-"frames": [ ExtResource( 29 ), ExtResource( 28 ), ExtResource( 30 ), ExtResource( 27 ) ],
-"loop": false,
-"name": "attack_up",
-"speed": 15.0
-}, {
-"frames": [ ExtResource( 15 ) ],
+"frames": [ ExtResource( 15 ), ExtResource( 18 ), ExtResource( 22 ), ExtResource( 10 ), ExtResource( 14 ), ExtResource( 23 ) ],
 "loop": true,
-"name": "dash",
-"speed": 5.0
+"name": "run",
+"speed": 10.0
 }, {
 "frames": [ ExtResource( 12 ), ExtResource( 20 ), ExtResource( 13 ) ],
 "loop": true,
 "name": "fall",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 5 ), ExtResource( 6 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 11 ), ExtResource( 19 ) ],
-"loop": true,
-"name": "idle",
-"speed": 10.0
+"frames": [ ExtResource( 29 ), ExtResource( 28 ), ExtResource( 30 ), ExtResource( 27 ) ],
+"loop": false,
+"name": "attack_up",
+"speed": 15.0
 }, {
 "frames": [ ExtResource( 21 ), ExtResource( 16 ), ExtResource( 17 ) ],
 "loop": true,
 "name": "jump",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 15 ), ExtResource( 18 ), ExtResource( 22 ), ExtResource( 10 ), ExtResource( 14 ), ExtResource( 23 ) ],
-"loop": true,
-"name": "run",
 "speed": 10.0
 } ]
 
@@ -89,7 +89,7 @@ position = Vector2( 0, 75 )
 scale = Vector2( 0.3, 0.3 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 3
+frame = 6
 playing = true
 offset = Vector2( 0, -250 )
 

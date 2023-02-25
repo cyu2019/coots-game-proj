@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/deflect.mp3-56f627fa398e275b19602a0e75eab53b.mp3str"
+
+[deps]
+
+source_file="res://sounds/deflect.mp3"
+dest_files=[ "res://.import/deflect.mp3-56f627fa398e275b19602a0e75eab53b.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

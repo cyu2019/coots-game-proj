@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/knife-swing-2-2.mp3-dd8e6180b3993eb15f488ed904babe90.mp3str"
+
+[deps]
+
+source_file="res://sounds/knife-swing-2-2.mp3"
+dest_files=[ "res://.import/knife-swing-2-2.mp3-dd8e6180b3993eb15f488ed904babe90.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

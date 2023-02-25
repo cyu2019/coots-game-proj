@@ -65,7 +65,8 @@ func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
 	state = GAME_STATE.DEAD
-	Globals.camera.global_position = global_position
+	$DeathSound.play()
+	Globals.camera.move_to(global_position)
 	get_tree().paused = true
 	
 	Engine.time_scale = 1.0
@@ -140,21 +141,23 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.STOMP_WINDUP:
 		$AnimatedSprite.play("stomp_windup")
+		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.STOMP:
 		$AnimatedSprite.play("stomp")
-		if $FloorCast.is_colliding():
+		if is_on_floor():
 			$CollisionShape2D.position = Vector2(5,10)
 			$CollisionShape2D.scale = Vector2(7,8)
 			state = GAME_STATE.LAND
 			Globals.camera.shake(400,0.5)
-			
+			$RumbleSound.play()
 			var particles = LAND_PARTICLES_SCENE.instance()
 			particles.global_position = global_position + Vector2.DOWN * 80
 			get_tree().get_root().add_child(particles)
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.KICK_WINDUP:
 		$AnimatedSprite.play("kick_windup")
+		
 	elif state == GAME_STATE.KICK:
 		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
 		$FireParticles.emitting = true
@@ -168,6 +171,8 @@ func _process(delta):
 		process_movement(delta)
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		face_player()
+		
+		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
 		$AnimatedSprite.play("air_kick_windup")
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.AIR_KICK:
@@ -175,7 +180,7 @@ func _process(delta):
 		$FireParticles.rotation = Vector2.DOWN.angle_to(velocity)
 		$FireParticles.emitting = true
 		
-		if $FloorCast.is_colliding():
+		if is_on_floor():
 			velocity.x = 0
 			$CollisionShape2D.position = Vector2(5,10)
 			$CollisionShape2D.scale = Vector2(7,8)
@@ -184,6 +189,7 @@ func _process(delta):
 			var particles = LAND_PARTICLES_SCENE.instance()
 			particles.global_position = global_position + Vector2.DOWN * 80
 			get_tree().get_root().add_child(particles)
+			$RumbleSound.play()
 			
 			Globals.camera.shake(400,0.3)
 		process_movement(delta)
@@ -206,8 +212,9 @@ func process_movement_gravity(delta):
 	process_movement(delta)
 
 func process_movement(_delta):
-	if $FloorCast.is_colliding():
+	if is_on_floor():
 		velocity.y = 0
+	print(velocity)
 	move_and_slide_with_snap(velocity, snap, Vector2.UP)
 
 # action timer
@@ -260,22 +267,29 @@ func _on_WindupTimer_timeout():
 		$CollisionShape2D.position = Vector2(-10,-10)
 		$CollisionShape2D.scale = Vector2(8,10)
 		state = GAME_STATE.STOMP
+		$StompCry.play()
 	elif state == GAME_STATE.KICK_WINDUP:
 		$CollisionShape2D.position = Vector2(20,-15)
 		$CollisionShape2D.scale = Vector2(11,7.5)
 		velocity.x = x_dir_to_player * KICK_SPEED
 		state = GAME_STATE.KICK
 		Globals.camera.shake(400,0.3)
+		$RumbleSound.play()
 		$KickTimer.start()
+		$FalconKickSound.play()
+		$FireSound.play()
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		var kick_dir = (Globals.player.global_position - global_position).normalized()
 		velocity = kick_dir * KICK_SPEED
 		if abs(velocity.angle_to(Vector2.DOWN)) > PI/4:
 			velocity = Vector2.DOWN.rotated(-sign(velocity.x) * PI/4) * KICK_SPEED
 		Globals.camera.shake(400,0.3)
+		$RumbleSound.play()
 		$CollisionShape2D.position = Vector2(5,30)
 		$CollisionShape2D.scale = Vector2(8,10)
 		state = GAME_STATE.AIR_KICK
+		$FalconKickSound.play()
+		$FireSound.play()
 		
 func _on_KickTimer_timeout():
 	if state == GAME_STATE.KICK:

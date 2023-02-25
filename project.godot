@@ -27,6 +27,17 @@ window/size/height=720
 
 display=false
 
+[importer_defaults]
+
+mp3={
+"loop": false,
+"loop_offset": 0
+}
+ogg_vorbis={
+"loop": false,
+"loop_offset": 0
+}
+
 [input]
 
 move_right={

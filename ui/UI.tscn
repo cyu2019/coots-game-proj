@@ -4,7 +4,7 @@
 [ext_resource path="res://ui/heart.png" type="Texture" id=2]
 [ext_resource path="res://ui/black.png" type="Texture" id=3]
 [ext_resource path="res://ui/FitScreen.gd" type="Script" id=4]
-[ext_resource path="res://music/placeholder.mp3" type="AudioStream" id=5]
+[ext_resource path="res://music/nick.ogg" type="AudioStream" id=5]
 [ext_resource path="res://ui/vignette.png" type="Texture" id=6]
 [ext_resource path="res://ui/PauseMenu.gd" type="Script" id=7]
 
@@ -41,6 +41,7 @@ margin_bottom = -20.0
 
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 5 )
+autoplay = true
 bus = "Music"
 
 [node name="HurtVignette" type="TextureRect" parent="."]

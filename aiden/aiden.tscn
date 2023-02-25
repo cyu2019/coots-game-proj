@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://aiden/sprites/idle/aiden-idle0003.png" type="Texture" id=1]
 [ext_resource path="res://aiden/sprites/poof/aiden-poof0000.png" type="Texture" id=2]
@@ -26,6 +26,10 @@
 [ext_resource path="res://aiden/sprites/needle-throw-air/aiden-needle-throw-air0000.png" type="Texture" id=24]
 [ext_resource path="res://aiden/sprites/needle-throw-air/aiden-needle-throw-air0001.png" type="Texture" id=25]
 [ext_resource path="res://aiden/aiden.gd" type="Script" id=26]
+[ext_resource path="res://sounds/sheik death.wav" type="AudioStream" id=27]
+[ext_resource path="res://sounds/needle-charging.mp3" type="AudioStream" id=28]
+[ext_resource path="res://sounds/poof.ogg" type="AudioStream" id=29]
+[ext_resource path="res://sounds/needle-throw.mp3" type="AudioStream" id=30]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -35,12 +39,12 @@ animations = [ {
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 18 ), ExtResource( 22 ), ExtResource( 17 ), ExtResource( 19 ) ],
-"loop": false,
+"loop": true,
 "name": "needle_charge",
 "speed": 10.0
 }, {
 "frames": [ ExtResource( 23 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 15 ) ],
-"loop": false,
+"loop": true,
 "name": "needle_charge_air",
 "speed": 10.0
 }, {
@@ -72,10 +76,10 @@ script = ExtResource( 26 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 3
+frame = 2
 playing = true
 
-[node name="IdleCollision" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( -3, 13.25 )
 scale = Vector2( 5, 8 )
 shape = SubResource( 2 )
@@ -98,6 +102,22 @@ collision_mask = 256
 [node name="ShakeTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[node name="DeathSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 27 )
+bus = "SFX"
+
+[node name="PoofSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 29 )
+bus = "SFX"
+
+[node name="NeedleCharge" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 28 )
+bus = "SFX"
+
+[node name="NeedleThrow" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 30 )
+bus = "SFX"
 
 [connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]
 [connection signal="timeout" from="ActionTimer" to="." method="_on_ActionTimer_timeout"]

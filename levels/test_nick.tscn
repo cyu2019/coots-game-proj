@@ -1,14 +1,15 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://player/player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
 [ext_resource path="res://nick/nick.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ui/UI.tscn" type="PackedScene" id=4]
-[ext_resource path="res://backgrounds/bg_0000s_0001_nick-fg.png" type="Texture" id=5]
-[ext_resource path="res://backgrounds/bg_0000s_0002_nick-floor.png" type="Texture" id=6]
-[ext_resource path="res://backgrounds/bg_0000s_0004_nick-bg-2.png" type="Texture" id=7]
-[ext_resource path="res://backgrounds/bg_0000s_0005_nick-true-bg.png" type="Texture" id=8]
-[ext_resource path="res://backgrounds/bg_0000s_0003_nick-bg-1.png" type="Texture" id=9]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0007_Layer-15.png" type="Texture" id=5]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0010_Layer-14.png" type="Texture" id=6]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0006_Layer-25.png" type="Texture" id=7]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0002_fg-blurred.png" type="Texture" id=8]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0005_Layer-18.png" type="Texture" id=9]
+[ext_resource path="res://bgs/bg-sketches(1)_0000s_0001_Layer-29.png" type="Texture" id=10]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 9.925, 10 )
@@ -87,27 +88,27 @@ motion_scale = Vector2( 0, 0 )
 [node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer11"]
 position = Vector2( 2, 0 )
 scale = Vector2( 10, 10 )
-texture = ExtResource( 8 )
+texture = ExtResource( 6 )
 
 [node name="ParallaxLayer9" type="ParallaxLayer" parent="ParallaxBackground"]
 motion_scale = Vector2( 0.1, 0.1 )
 
 [node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer9"]
 scale = Vector2( 1, 1.5 )
-texture = ExtResource( 7 )
+texture = ExtResource( 5 )
 
 [node name="ParallaxLayer8" type="ParallaxLayer" parent="ParallaxBackground"]
 motion_scale = Vector2( 0.3, 0.5 )
 
 [node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer8"]
 scale = Vector2( 1, 1.5 )
-texture = ExtResource( 9 )
+texture = ExtResource( 7 )
 
 [node name="ParallaxLayer7" type="ParallaxLayer" parent="ParallaxBackground"]
 
 [node name="Sprite" type="Sprite" parent="ParallaxBackground/ParallaxLayer7"]
-position = Vector2( 0, 500 )
-texture = ExtResource( 6 )
+position = Vector2( 0, 450 )
+texture = ExtResource( 9 )
 
 [node name="ParallaxForeground" type="ParallaxBackground" parent="."]
 layer = 100
@@ -118,5 +119,14 @@ motion_scale = Vector2( 2.5, 2 )
 
 [node name="Sprite" type="Sprite" parent="ParallaxForeground/ParallaxLayer6"]
 position = Vector2( 0, -100 )
-texture = ExtResource( 5 )
+texture = ExtResource( 8 )
+offset = Vector2( -80, 0 )
+
+[node name="ParallaxLayer7" type="ParallaxLayer" parent="ParallaxForeground"]
+z_index = 100
+motion_scale = Vector2( 2, 1 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxForeground/ParallaxLayer7"]
+position = Vector2( 0, -800 )
+texture = ExtResource( 10 )
 offset = Vector2( -80, 0 )

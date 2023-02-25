@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/nick.ogg-d402bd00633a247e11d179fa0ff3ed64.oggstr"
+
+[deps]
+
+source_file="res://music/nick.ogg"
+dest_files=[ "res://.import/nick.ogg-d402bd00633a247e11d179fa0ff3ed64.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0
