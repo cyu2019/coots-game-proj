@@ -9,21 +9,37 @@ var health = 9
 export var level = 0
 var BGM
 
-
 var next_scene
 
-enum {FADE_IN, INTRO, DEFAULT, DEAD, DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
+enum {FADE_IN, INTRO, DEFAULT, DEAD, DIALOGUE
+	  DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
 var state = FADE_IN
+
+# Text dialogue
+var scene_text_file = "res://dialogue/slime.json"
+var scene_text = {}
+var selected_text = []
+var in_progress = false
+onready var firstbackground = $FirstDialogue/Background
+# onready var secondbackground = $SecondDialogue/Background
+onready var firsttext = $FirstDialogue/MainDialogue
+# onready var secondtext = $SecondDialogue/SecondaryDialogue
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$BossHealth.visible = false
 	$BossName.visible = false
 	if level == 0:
+		scene_text_file = "res://dialogue/slime.json"
 		BGM = $BGM
 	elif level == 1:
+		scene_text_file = "res://dialogue/aiden.json"
 		BGM = $BGM2
 	else:
+		scene_text_file = "res://dialogue/nick.json"
 		BGM = $BGM3
+	start()
 	state = FADE_IN
 	Globals.ui = self
 	$FadeToBlack.visible = true
@@ -98,10 +114,13 @@ func process_fade_in(delta):
 		
 		$LabelHolder.visible = true
 		if level == 0:
+			scene_text_file = "res://dialogue/slime.json"
 			$LabelHolder.get_node("Label1").visible = true
 		elif level == 1:
+			scene_text_file = "res://dialogue/aiden.json"
 			$LabelHolder.get_node("Label2").visible = true
 		else:
+			scene_text_file = "res://dialogue/nick.json"
 			$LabelHolder.get_node("Label3").visible = true
 		
 		$IntroSting.play()
@@ -130,6 +149,8 @@ func allow_pause(delta):
 
 func play_death_sounds(level=0):
 	$DeathSound.play()
+	get_tree().paused = true
+	start_text("End")
 	if level == 0:
 		$SlimeDeath.play()
 	elif level == 1:
@@ -172,3 +193,43 @@ func _on_SecondarySubtitleTimer_timeout():
 		$LabelHolder.get_node("SecondaryLabel2").visible = true
 	else:
 		$LabelHolder.get_node("SecondaryLabel3").visible = true
+
+
+################################################################################
+
+func start():
+	scene_text = load_scene_text()
+
+func load_scene_text():
+	var file = File.new()
+	if file.file_exists(scene_text_file):
+		file.open(scene_text_file, File.READ)
+		return parse_json(file.get_as_text())
+
+func next_line():
+	if selected_text.size() > 0:
+		push_line_to_main_dialogue()
+	else:
+		finish()
+
+func finish():
+	firsttext.text = ""
+	firstbackground.visible = false
+	in_progress = false
+	get_tree().paused = false
+
+func push_line_to_main_dialogue():
+	firsttext.text = selected_text.pop_front()
+	print(firsttext.text)
+
+func start_text(text_key):
+	if in_progress:
+		next_line()
+	else:
+		get_tree().paused = true
+		firstbackground.visible = true
+		in_progress = true
+		selected_text = scene_text[text_key].duplicate()
+		push_line_to_main_dialogue()
+
+# func push_line_to_secondary_dialogue(str):
