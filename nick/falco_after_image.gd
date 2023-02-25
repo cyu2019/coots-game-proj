@@ -16,3 +16,7 @@ func _process(delta):
 	$Sprite.modulate.a -= delta * 5
 	if $Sprite.modulate.a <= 0:
 		queue_free()
+
+
+func _on_DeactivateTimer_timeout():
+	$CollisionShape2D.disabled = true

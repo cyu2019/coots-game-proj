@@ -14,8 +14,8 @@ func unlimit():
 	limit_right = 100000
 
 func limit():
-	limit_left = DEFAULT_LIMIT
-	limit_right = -DEFAULT_LIMIT
+	limit_left = -DEFAULT_LIMIT
+	limit_right = DEFAULT_LIMIT
 
 func move_to(pos):
 	unlimit()

@@ -5,33 +5,32 @@ extends CanvasLayer
 # var a = 2
 # var b = "text"
 
-var health = 8
+var health = 9
 export var level = 0
 var BGM
 
 
 var next_scene
 
-enum {INTRO, DEFAULT, DEAD, DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
-var state = DEFAULT
+enum {FADE_IN, INTRO, DEFAULT, DEAD, DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
+var state = FADE_IN
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print (level)
+	$BossHealth.visible = false
+	$BossName.visible = false
 	if level == 0:
 		BGM = $BGM
 	elif level == 1:
 		BGM = $BGM2
 	else:
 		BGM = $BGM3
-	
-	BGM.play()	
-		
-	
+	state = FADE_IN
 	Globals.ui = self
 	$FadeToBlack.visible = true
+	$FadeToBlack.modulate.a = 1
 	$BossHealth.value = 100
+	Globals.camera.zoom = Vector2(0.3,0.3)
 	Globals.player.connect("health_changed", self, "_on_health_change")
-	get_tree().paused = false
 	OS.window_maximized = true
 func _on_health_change(amt):
 	health += amt
@@ -39,14 +38,22 @@ func _on_health_change(amt):
 	if amt < 0:
 		$HurtVignette.modulate.a = 1
 
+func clean_tree():
+	var instanced_nodes = get_tree().get_nodes_in_group("instanced")
+	for node in instanced_nodes:
+		node.queue_free()
+		
+
 func transition_scene(scene):
 	next_scene = scene
 	state = TRANSITION_TO_NEXT_SCENE
 	
 func on_faded():
 	if state == DEAD:
+		clean_tree()
 		get_tree().reload_current_scene()
 	elif state == TRANSITION_TO_NEXT_SCENE:
+		clean_tree()
 		get_tree().change_scene(next_scene)
 
 func set_boss_health(val):
@@ -61,9 +68,11 @@ func _process(delta):
 	else:
 		$HurtVignette.modulate.a -= delta	
 	
-	
+	if state == FADE_IN:
+		process_fade_in(delta)
+	elif state == INTRO:
+		pass
 	if state == DEFAULT:
-		
 		if $BossHealth.value == 0:
 			state = DEFEATED_BOSS
 		else:
@@ -72,15 +81,36 @@ func _process(delta):
 	elif state == DEAD:
 		process_fade(delta)
 	elif state == DEFEATED_BOSS:
-		print ('bbbb')
 		BGM.volume_db -= delta * 30
 	elif state == TRANSITION_TO_NEXT_SCENE:
 		process_fade(delta)
 		BGM.volume_db -= delta * 30
+	
+
+func process_fade_in(delta):
+	Globals.camera.zoom = Globals.camera.zoom.move_toward(Vector2(0.5,0.5), delta / 4)
+	$FadeToBlack.modulate.a -= delta / 2
+	if $FadeToBlack.modulate.a <= 0:
+		print("ba")
+		state = INTRO
+		$IntroTimer.start()
+		$SecondarySubtitleTimer.start()
 		
+		$LabelHolder.visible = true
+		if level == 0:
+			$LabelHolder.get_node("Label1").visible = true
+		elif level == 1:
+			$LabelHolder.get_node("Label2").visible = true
+		else:
+			$LabelHolder.get_node("Label3").visible = true
+		
+		$IntroSting.play()
+		$IntroSting2.play()
+		
+		Globals.camera.move_to(Globals.enemy1.global_position)
 	
 func process_fade(delta):
-	print("baaaaa")
+	
 	$FadeToBlack.modulate.a += delta / 2
 	$BGM.volume_db -= delta * 10
 	Globals.camera.zoom = lerp(Globals.camera.zoom, Vector2(0.5,0.5), delta)
@@ -97,4 +127,48 @@ func allow_pause(delta):
 		$PauseMenu.visible = true
 	else:
 		$PauseMenu.visible = false
-		
+
+func play_death_sounds(level=0):
+	$DeathSound.play()
+	if level == 0:
+		$SlimeDeath.play()
+	elif level == 1:
+		$AidenDeath.play()
+	else:
+		$NickDeath.play()
+
+func play_phase_up_sound():
+	$PhaseSound.play()
+
+
+
+func _on_IntroTimer_timeout():
+	state = DEFAULT
+	Globals.player.state = Globals.player.GAME_STATE.MOVEMENT
+	Globals.enemy1.state = Globals.enemy1.GAME_STATE.IDLE
+	Globals.camera.zoom = Vector2(1,1)
+	Globals.camera.return_to_player()
+	
+	$LabelHolder.visible = false
+	$LabelHolder.get_node("Label1").visible = false
+	$LabelHolder.get_node("Label2").visible = false
+	$LabelHolder.get_node("Label3").visible = false
+	$LabelHolder.get_node("SecondaryLabel1").visible = false
+	$LabelHolder.get_node("SecondaryLabel2").visible = false
+	$LabelHolder.get_node("SecondaryLabel3").visible = false
+	$BossName.visible = true
+	var name = ["SLIME", "AIDEN", "NICK"][level]
+	$BossName.bbcode_text = "[center]%s[/center]" % (name)
+	$BossHealth.visible = true
+	
+	get_tree().paused = false
+	BGM.play()
+
+
+func _on_SecondarySubtitleTimer_timeout():
+	if level == 0:
+		$LabelHolder.get_node("SecondaryLabel1").visible = true
+	elif level == 1:
+		$LabelHolder.get_node("SecondaryLabel2").visible = true
+	else:
+		$LabelHolder.get_node("SecondaryLabel3").visible = true

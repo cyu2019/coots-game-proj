@@ -28,12 +28,12 @@ const shake_amount = 10
 # COMBO 1 = Falcon stomp
 # COMBO 2 = Falcon kick air
 # COMBO 3 = Falcon kick ground
-enum GAME_STATE {IDLE, 
+enum GAME_STATE {INTRO, IDLE, 
 				 STOMP_WINDUP, STOMP, 
 				 KICK_WINDUP, KICK, 
 				 AIR_KICK_WINDUP, AIR_KICK, 
 				 LAND, DEAD}
-var state = GAME_STATE.IDLE
+onready var state = GAME_STATE.INTRO
 
 var velocity
 var snap
@@ -60,15 +60,17 @@ func _ready():
 	$CollisionShape2D.scale = Vector2(6,10)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
+	face_player()
 
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
 	state = GAME_STATE.DEAD
-	$DeathSound.play()
+	Globals.ui.play_death_sounds(0)
 	Globals.camera.move_to(global_position)
 	get_tree().paused = true
 	
+	Globals.camera.shake(1000,1)
 	Engine.time_scale = 1.0
 	var particles = DEATH_PARTICLES_SCENE.instance()
 	particles.global_position = global_position
@@ -76,6 +78,7 @@ func die():
 	#queue_free()
 
 func hurt(damage=1):
+	var prev_health = health
 	health -= damage
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
@@ -85,17 +88,17 @@ func hurt(damage=1):
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 
 	# phase
-	if health == MAX_HEALTH/2:
+	if health <= floor(MAX_HEALTH/3) and prev_health > floor(MAX_HEALTH/3):
+		Globals.ui.play_phase_up_sound()
+		$ActionTimer.wait_time = 0.5
+		#KICK_SPEED = 1800
+		base_color = Color.orangered
+	elif health <= floor(MAX_HEALTH/3*2) and prev_health > floor(MAX_HEALTH/3*2):
+		Globals.ui.play_phase_up_sound()
 		$WindupTimer.wait_time = 0.8
 		$ActionTimer.wait_time = 1
 		#KICK_SPEED = 1600
 		base_color = Color.orange
-		
-		
-	if health == MAX_HEALTH/3:
-		$ActionTimer.wait_time = 0.5
-		#KICK_SPEED = 1800
-		base_color = Color.orangered
 	
 	if health <= 0:
 		die()
@@ -131,7 +134,11 @@ func _process(delta):
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
 	
-	if state == GAME_STATE.IDLE:
+	if state == GAME_STATE.INTRO:
+		face_player()
+		$AnimatedSprite.play("idle")
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.IDLE:
 		$CollisionShape2D.position = Vector2(0,0)
 		$CollisionShape2D.scale = Vector2(6,10)
 		$FireParticles.emitting = false

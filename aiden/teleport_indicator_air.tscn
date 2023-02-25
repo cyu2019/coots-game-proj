@@ -6,7 +6,7 @@
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
 
-[node name="Node2D" type="Sprite"]
+[node name="Node2D" type="Sprite" groups=["instanced"]]
 pause_mode = 2
 modulate = Color( 1, 0.12549, 0.12549, 1 )
 self_modulate = Color( 1, 1, 1, 0.639216 )

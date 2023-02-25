@@ -30,8 +30,8 @@ var dash_time = 0.25
 
 var cur_dir_intent = 0
 
-enum GAME_STATE {MOVEMENT, DASH, ATTACK, ATTACK_SLASHED}
-var state = GAME_STATE.MOVEMENT
+enum GAME_STATE {INTRO, MOVEMENT, DASH, ATTACK, ATTACK_SLASHED}
+var state = GAME_STATE.INTRO
 var can_dash = true
 
 
@@ -48,6 +48,7 @@ var health = 30
 
 # called on node beginning
 func _ready():
+	state = GAME_STATE.INTRO
 	Globals.player = self
 	velocity = Vector2.ZERO
 	
@@ -128,16 +129,18 @@ func _process(delta):
 	else:
 		effect.cutoff_hz = lerp(effect.cutoff_hz, 9000, delta)
 	
-	
-	squashy_stretch(delta)
+	if state != GAME_STATE.INTRO:
+		squashy_stretch(delta)
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
 
 	if len(enemies_in_hurtbox) > 0:
 		hurt()
-	
-	if state == GAME_STATE.MOVEMENT:
+	if state == GAME_STATE.INTRO:
+		$AnimatedSprite.play("idle")
+		pass
+	elif state == GAME_STATE.MOVEMENT:
 		process_movement(delta)
 		
 		if Input.is_action_just_pressed("dash") and can_dash:
@@ -174,7 +177,7 @@ func _process(delta):
 func dash():
 	state = GAME_STATE.DASH
 	can_dash = false
-	#$DashSound.play()
+	$DashSound.play()
 	$DashCooldownTimer.start()
 	
 	_on_AfterImageTimer_timeout()
@@ -296,13 +299,12 @@ func process_movement(delta):
 			
 			$AnimatedSprite.play("idle")
 	
-	"""
-	#old footstep code
+	
 	if $AnimatedSprite.animation == "run" and not $FootstepSound.playing:
 		$FootstepSound.play()
 	elif $AnimatedSprite.animation != "run":
 		$FootstepSound.stop()	
-	"""
+	
 
 func _on_DashTimer_timeout():
 	if state == GAME_STATE.DASH:

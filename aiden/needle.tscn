@@ -7,7 +7,7 @@
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 6.4, 1 )
 
-[node name="Needle" type="Area2D"]
+[node name="Needle" type="Area2D" groups=["instanced"]]
 process_priority = -1
 rotation = -6.28319
 z_index = 100

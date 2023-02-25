@@ -24,7 +24,7 @@ var base_color = Color.white
 # ========================
 
 export(PackedScene) var NEEDLE = preload("res://aiden/needle.tscn")
-enum GAME_STATE {IDLE, 
+enum GAME_STATE {INTRO, IDLE, 
 				 POOF, 
 				 NEEDLE_THROW, 
 				 NEEDLE_THROW_AIR,
@@ -32,7 +32,7 @@ enum GAME_STATE {IDLE,
 				 NEEDLE_CHARGE_AIR,
 				 LAND,
 				DEAD}
-var state = GAME_STATE.IDLE
+onready var state = GAME_STATE.INTRO
 var velocity
 var snap
 var was_on_floor = true
@@ -61,6 +61,7 @@ func _ready():
 	$CollisionShape2D.scale = Vector2(5,8)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
+	face_player()
 	
 func warn():
 	if is_instance_valid(teleport_indicator):
@@ -78,9 +79,12 @@ func warn():
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
-	$DeathSound.play()
+	Globals.ui.play_death_sounds(1)
 	state = GAME_STATE.DEAD
+	
+	Globals.camera.shake(1000,1)
 	Engine.time_scale = 1.0
+	
 	Globals.camera.move_to(global_position)
 	get_tree().paused = true
 	if is_instance_valid(teleport_indicator):
@@ -93,25 +97,29 @@ func die():
 
 
 func hurt(damage = 1):
+	var prev_health = health
 	health -= damage
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
 	# phasing
-	if health <= floor(MAX_HEALTH/3):
+	if health <= floor(MAX_HEALTH/3) and prev_health > floor(MAX_HEALTH/3):
+		Globals.ui.play_phase_up_sound()
 		base_color = Color.orangered
 		spread_needles_probability = 1
 		num_needles = 5
 		burst_amt = 4
 		$ActionTimer.wait_time = 3
-	elif health <= floor(2*MAX_HEALTH/3):
+	elif health <= floor(2*MAX_HEALTH/3) and prev_health > floor(2*MAX_HEALTH/3):
+		Globals.ui.play_phase_up_sound()
 		$ActionTimer.wait_time = 3
 		base_color = Color.orange
 		spread_needles_probability = 1
 		burst_amt = 2
-	elif health <= floor(5*MAX_HEALTH/6):
+	elif health <= floor(5*MAX_HEALTH/6) and prev_health > floor(5*MAX_HEALTH/6):
 		burst_amt = 1
+		
 	if health <= 0:
 		die()
 	
@@ -165,7 +173,13 @@ func _process(delta):
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
-	
+	if state == GAME_STATE.INTRO:
+		$CollisionShape2D.position = Vector2(-3, 13.25)
+		$CollisionShape2D.scale = Vector2(5,8)
+		face_player()
+		$AnimatedSprite.play("idle")
+		process_movement_gravity(delta)
+		has_thrown_needles = false
 	if state == GAME_STATE.IDLE:
 		$CollisionShape2D.position = Vector2(-3, 13.25)
 		$CollisionShape2D.scale = Vector2(5,8)
@@ -182,6 +196,7 @@ func _process(delta):
 			warn()
 		if $AnimatedSprite.frame >= 2 and has_thrown_needles == false:
 			$NeedleThrow.play()
+			$Grunt.play()
 			throw_needles(num_needles)
 			if burst_counter > 0:
 				teleport()
@@ -199,6 +214,7 @@ func _process(delta):
 		if $AnimatedSprite.frame >= 2 and has_thrown_needles == false:
 			throw_needles(num_needles)
 			$NeedleThrow.play()
+			$Grunt.play()
 			if burst_counter > 0:
 				teleport()
 				target_position = get_random_pos()
@@ -215,6 +231,8 @@ func _process(delta):
 		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
 		#process_movement_gravity(delta)
 	elif state == GAME_STATE.LAND:
+		$CollisionShape2D.position = Vector2(-3, 13.25)
+		$CollisionShape2D.scale = Vector2(5,8)
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.DEAD:
@@ -242,6 +260,7 @@ func _on_ActionTimer_timeout():
 
 # state transition functions
 func begin_poof(position):
+	$Grunt2.play()
 	$CollisionShape2D.position = Vector2(5,40)
 	$CollisionShape2D.scale = Vector2(8,6)
 	state = GAME_STATE.POOF

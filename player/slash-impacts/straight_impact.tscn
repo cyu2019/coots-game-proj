@@ -17,7 +17,7 @@ animations = [ {
 "speed": 15.0
 } ]
 
-[node name="StraightImpact" type="AnimatedSprite"]
+[node name="StraightImpact" type="AnimatedSprite" groups=["instanced"]]
 material = SubResource( 2 )
 scale = Vector2( 0.8, 0.8 )
 frames = SubResource( 1 )

@@ -16,7 +16,7 @@ animations = [ {
 "speed": 30.0
 } ]
 
-[node name="AnimatedSprite" type="AnimatedSprite"]
+[node name="AnimatedSprite" type="AnimatedSprite" groups=["instanced"]]
 scale = Vector2( 0.4, 0.4 )
 frames = SubResource( 1 )
 offset = Vector2( 0, 50 )

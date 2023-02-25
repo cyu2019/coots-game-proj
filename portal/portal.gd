@@ -43,9 +43,7 @@ func _process(delta):
 	
 	if enabled and player_in and Input.is_action_just_pressed("interact"):
 		Globals.ui.transition_scene(level)
-		print("aa")
-		
-
+		$Sound.play()
 
 func _on_Node2D_body_entered(body):
 	if body == Globals.player:
@@ -58,6 +56,5 @@ func _on_Node2D_body_exited(body):
 
 
 func _on_FocusTimer_timeout():
-	Globals.camera.move_to(Globals.player.global_position)
-	#Globals.camera.return_to_player()
+	Globals.camera.return_to_player()
 	pass

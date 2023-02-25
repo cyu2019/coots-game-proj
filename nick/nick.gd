@@ -29,7 +29,7 @@ var base_color = Color.white
 
 # ========================
 var LASER = preload("res://nick/laser.tscn")
-enum GAME_STATE {IDLE, 
+enum GAME_STATE {INTRO, IDLE, 
 				 SIDEB, 
 				 UPB_CHARGE,
 				 UPB,
@@ -37,7 +37,7 @@ enum GAME_STATE {IDLE,
 				 LASER_WINDUP,
 				 LAND,
 				DEAD}
-var state = GAME_STATE.IDLE
+onready var state = GAME_STATE.INTRO
 var velocity
 var snap
 var num_lasers
@@ -59,14 +59,16 @@ func _ready():
 	$CollisionShape2D.scale = Vector2(7,10)
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
+	face_player()
 
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	$CollisionShape2D.queue_free()
 	state = GAME_STATE.DEAD
-	$DeathSound.play()
+	Globals.ui.play_death_sounds(2)
 	Globals.camera.move_to(global_position)
 	get_tree().paused = true
+	Globals.camera.shake(1000,1)
 	
 	Engine.time_scale = 1.0
 	#queue_free()
@@ -75,16 +77,19 @@ func die():
 	get_tree().get_root().add_child(particles)
 
 func hurt(damage = 1):
+	var prev_health = health
 	health -= damage
 	$AnimatedSprite.modulate = Color(100,100,100)
 	$ShakeTimer.start()
 	Globals.ui.set_boss_health(100 * health / MAX_HEALTH)
 	
-	if health <= floor(MAX_HEALTH / 3):
+	if health <= floor(MAX_HEALTH / 3) and prev_health > floor(MAX_HEALTH / 3):
+		Globals.ui.play_phase_up_sound()
 		base_color = Color.orangered
 		burst_amt = 3
 		$ActionTimer.wait_time = 1.5
-	elif health <= floor(MAX_HEALTH / 3 * 2):
+	elif health <= floor(MAX_HEALTH / 3 * 2) and prev_health > floor(MAX_HEALTH / 3 * 2):
+		Globals.ui.play_phase_up_sound()
 		base_color = Color.orange
 		burst_amt = 2
 		$ActionTimer.wait_time = 1.5
@@ -122,7 +127,13 @@ func _process(delta):
 	# see move_and_slide_with_snap
 	snap = Vector2.DOWN * 16
 	
-	if state == GAME_STATE.IDLE:
+	if state == GAME_STATE.INTRO:
+		face_player()
+		$CollisionShape2D.position = Vector2(3,0)
+		$CollisionShape2D.scale = Vector2(7,10)
+		$AnimatedSprite.play("idle")
+		process_movement_gravity(delta)
+	elif state == GAME_STATE.IDLE:
 		face_player()
 		$CollisionShape2D.position = Vector2(3,0)
 		$CollisionShape2D.scale = Vector2(7,10)

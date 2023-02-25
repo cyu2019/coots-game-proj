@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/orchestra-stab.ogg-e93e11ddaf2aa742d080514e3702134e.oggstr"
+
+[deps]
+
+source_file="res://sounds/orchestra-stab.ogg"
+dest_files=[ "res://.import/orchestra-stab.ogg-e93e11ddaf2aa742d080514e3702134e.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0
