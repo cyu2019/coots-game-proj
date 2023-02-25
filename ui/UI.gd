@@ -9,7 +9,10 @@ var health = 8
 export var level = 0
 var BGM
 
-enum {INTRO, DEFAULT, DEAD, DEFEATED_BOSS, DEFEATED_BOSS_ENDING}
+
+var next_scene
+
+enum {INTRO, DEFAULT, DEAD, DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
 var state = DEFAULT
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -36,42 +39,51 @@ func _on_health_change(amt):
 	if amt < 0:
 		$HurtVignette.modulate.a = 1
 
+func transition_scene(scene):
+	next_scene = scene
+	state = TRANSITION_TO_NEXT_SCENE
+	
 func on_faded():
 	if state == DEAD:
 		get_tree().reload_current_scene()
+	elif state == TRANSITION_TO_NEXT_SCENE:
+		get_tree().change_scene(next_scene)
 
 func set_boss_health(val):
 	$BossHealth.value = val
 
 func _process(delta):
-	
-	if $BossHealth.value == 0:
-		state = DEFEATED_BOSS
-	
+	$Health.rect_size.x = 100 * health
 	if health == 0:
+		$Health.visible = false
 		state = DEAD
 		get_tree().paused = true
 	else:
 		$HurtVignette.modulate.a -= delta	
 	
 	
-	$Health.rect_size.x = 100 * health
-	if health == 0:
-		$Health.visible = false
+	if state == DEFAULT:
 		
-	
-	if state == DEAD:
+		if $BossHealth.value == 0:
+			state = DEFEATED_BOSS
+		else:
+			allow_pause(delta)
+		
+	elif state == DEAD:
 		process_fade(delta)
-	elif state == DEFAULT:
-		allow_pause(delta)
 	elif state == DEFEATED_BOSS:
-		$BGM.volume_db -= delta * 30
+		print ('bbbb')
+		BGM.volume_db -= delta * 30
+	elif state == TRANSITION_TO_NEXT_SCENE:
+		process_fade(delta)
+		BGM.volume_db -= delta * 30
 		
 	
 func process_fade(delta):
+	print("baaaaa")
 	$FadeToBlack.modulate.a += delta / 2
 	$BGM.volume_db -= delta * 10
-	Globals.camera.zoom = lerp(Globals.camera.zoom, Vector2(1.5,1.5), delta)
+	Globals.camera.zoom = lerp(Globals.camera.zoom, Vector2(0.5,0.5), delta)
 	if $FadeToBlack.modulate.a >= 1.5:
 		on_faded()
 

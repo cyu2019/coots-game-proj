@@ -23,7 +23,7 @@ func move_to(pos):
 
 func return_to_player():
 	limit()	
-	position = Vector2.ZERO
+	transform.origin = Vector2.ZERO
 	
 
 func _ready():

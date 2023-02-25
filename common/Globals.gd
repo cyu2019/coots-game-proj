@@ -7,6 +7,7 @@ var ui
 var enemy1
 var camera
 
+var portal
 var cur_enemy
 
 func frameFreeze(timeScale, duration):

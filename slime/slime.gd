@@ -73,7 +73,6 @@ func die():
 	var particles = DEATH_PARTICLES_SCENE.instance()
 	particles.global_position = global_position
 	get_tree().get_root().add_child(particles)
-	
 	#queue_free()
 
 func hurt(damage=1):
@@ -200,12 +199,12 @@ func _process(delta):
 		process_movement_gravity(delta)
 	
 	elif state == GAME_STATE.DEAD:
-		modulate.a -= delta
+		modulate.a -= delta / 2
 		if modulate.a <= 0:
-			Globals.camera.position = Vector2(0,0)
 			get_tree().paused = false
 			queue_free()
-			get_tree().change_scene("res://levels/test_aiden.tscn")
+			Globals.portal.enable()
+			#get_tree().change_scene("res://levels/test_aiden.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

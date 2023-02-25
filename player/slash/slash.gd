@@ -65,4 +65,8 @@ func _on_Slash_body_entered(body):
 		get_tree().get_root().add_child(impact2)
 		
 		hit.append(body)
-		get_parent().velocity = PUSHBACK * -hit_dir 
+		
+		if -hit_dir.x != 0:
+			get_parent().velocity.x = (PUSHBACK * -hit_dir).x
+		elif -hit_dir.y != 0:
+			get_parent().velocity.y = (PUSHBACK * -hit_dir).y

@@ -181,11 +181,11 @@ func _process(delta):
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.DEAD:
-		modulate.a -= delta
+		modulate.a -= delta / 2
+		
 		if modulate.a <= 0:
-			Globals.camera.position = Vector2(0,0)
-			get_tree().paused = false
 			queue_free()
+			Globals.ui.transition_scene("res://levels/test_slime.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

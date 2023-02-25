@@ -15,6 +15,9 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if Globals.ui.state == Globals.ui.DEAD:
+		queue_free()
+	
 	modulate.a = min(modulate.a + delta, 1)
 	global_position = lerp(global_position, target_position, 5*delta)
 	if target_position.x > 0:

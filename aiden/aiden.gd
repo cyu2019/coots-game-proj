@@ -88,6 +88,7 @@ func die():
 	var particles = DEATH_PARTICLES_SCENE.instance()
 	particles.global_position = global_position
 	get_tree().get_root().add_child(particles)
+	
 	#queue_free()
 
 
@@ -217,12 +218,12 @@ func _process(delta):
 		$AnimatedSprite.play("idle")
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.DEAD:
-		modulate.a -= delta
+		modulate.a -= delta / 2
 		if modulate.a <= 0:
-			Globals.camera.return_to_player()
 			get_tree().paused = false
 			queue_free()
-			get_tree().change_scene("res://levels/test_nick.tscn")
+			Globals.portal.enable()
+			#get_tree().change_scene("res://levels/test_nick.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

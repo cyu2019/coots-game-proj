@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://aiden/aiden.tscn" type="PackedScene" id=1]
 [ext_resource path="res://player/player.tscn" type="PackedScene" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://bgs/bg-sketches(1)_0001s_0004_Layer-12.png" type="Texture" id=8]
 [ext_resource path="res://bgs/bg-sketches(1)_0001s_0006_Layer-8.png" type="Texture" id=9]
 [ext_resource path="res://bgs/bg-sketches(1)_0001s_0000_Layer-13-copy.png" type="Texture" id=10]
+[ext_resource path="res://portal/portal.tscn" type="PackedScene" id=11]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 9.925, 10 )
@@ -128,3 +129,7 @@ motion_scale = Vector2( 2.5, 2 )
 [node name="Sprite" type="Sprite" parent="ParallaxForeground/ParallaxLayer6"]
 texture = ExtResource( 10 )
 offset = Vector2( -80, 0 )
+
+[node name="Portal" parent="." instance=ExtResource( 11 )]
+position = Vector2( 131, 13 )
+level = "res://levels/test_nick.tscn"
