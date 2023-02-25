@@ -147,7 +147,7 @@ func _process(delta):
 		process_movement_gravity(delta)
 	elif state == GAME_STATE.STOMP_WINDUP:
 		$AnimatedSprite.play("stomp_windup")
-		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
+		move_and_slide_with_snap(Vector2.ZERO, Vector2.ZERO, Vector2.UP)
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.STOMP:
 		$AnimatedSprite.play("stomp")
@@ -178,7 +178,7 @@ func _process(delta):
 	elif state == GAME_STATE.AIR_KICK_WINDUP:
 		face_player()
 		
-		move_and_slide_with_snap(Vector2.ZERO, snap, Vector2.UP)
+		move_and_slide_with_snap(Vector2.ZERO, Vector2.ZERO, Vector2.UP)
 		$AnimatedSprite.play("air_kick_windup")
 		global_position = lerp(global_position, target_position, delta * 5)
 	elif state == GAME_STATE.AIR_KICK:
