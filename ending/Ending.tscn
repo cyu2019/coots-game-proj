@@ -1,0 +1,168 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://ui/FitScreen.gd" type="Script" id=1]
+[ext_resource path="res://ui/black.png" type="Texture" id=2]
+[ext_resource path="res://ending/credits.png" type="Texture" id=3]
+[ext_resource path="res://ending/coots.png" type="Texture" id=4]
+[ext_resource path="res://ending/Ending.gd" type="Script" id=5]
+[ext_resource path="res://ending/Untitled-3.png" type="Texture" id=6]
+[ext_resource path="res://music/fishing.mp3" type="AudioStream" id=7]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+script = ExtResource( 5 )
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_right = 227.0
+margin_bottom = 147.0
+texture = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="coots" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -537.0
+margin_top = -262.0
+margin_right = -37.0
+margin_bottom = 238.0
+texture = ExtResource( 4 )
+
+[node name="coots2" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 106.0
+margin_top = -253.0
+margin_right = 606.0
+margin_bottom = 647.0
+rect_scale = Vector2( 0.6, 0.6 )
+texture = ExtResource( 3 )
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -404.0
+margin_top = 222.0
+margin_right = -117.0
+margin_bottom = 309.0
+rect_pivot_offset = Vector2( 944, -261 )
+bbcode_enabled = true
+bbcode_text = "[center]actually, they were just playing.
+melee the whole time.
+(violence is bad)
+[/center]"
+text = "actually, they were just playing.
+melee the whole time.
+(violence is bad)
+"
+
+[node name="RichTextLabel4" type="RichTextLabel" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -266.0
+margin_top = -42.0
+rect_pivot_offset = Vector2( 944, -261 )
+bbcode_enabled = true
+bbcode_text = "sorry the ending is so abrupt, we just ran out of time lol"
+text = "sorry the ending is so abrupt, we just ran out of time lol"
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 134.0
+margin_top = -103.0
+margin_right = 421.0
+margin_bottom = 346.0
+rect_pivot_offset = Vector2( 944, -261 )
+bbcode_enabled = true
+bbcode_text = "[center]art
+programming
+music/sound
+
+
+
+
+
+
+
+
+
+programming
+
+
+
+
+
+
+
+art
+
+
+
+"
+text = "art
+programming
+music/sound
+
+
+
+
+
+
+
+
+
+programming
+
+
+
+
+
+
+
+art
+
+
+
+"
+
+[node name="TextureRect2" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -420.0
+margin_top = -444.0
+margin_right = 380.0
+margin_bottom = -144.0
+texture = ExtResource( 6 )
+
+[node name="Black" type="TextureRect" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+texture = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="Button" type="Button" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 40.0
+margin_top = -59.0
+margin_right = 143.0
+margin_bottom = -28.0
+text = "Return to Title"
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 7 )
+autoplay = true
+bus = "Music"
+
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

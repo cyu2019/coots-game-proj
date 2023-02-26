@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
 [ext_resource path="res://ui/heart.png" type="Texture" id=2]
@@ -24,6 +24,7 @@
 [ext_resource path="res://labels/aidensub.png" type="Texture" id=22]
 [ext_resource path="res://labels/slimesub.png" type="Texture" id=23]
 [ext_resource path="res://backgrounds/dialogue.png" type="Texture" id=24]
+[ext_resource path="res://music/fishing.mp3" type="AudioStream" id=25]
 
 [sub_resource type="Theme" id=1]
 
@@ -70,6 +71,10 @@ bus = "Music"
 stream = ExtResource( 5 )
 bus = "Music"
 
+[node name="BGM4" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 25 )
+bus = "Music"
+
 [node name="HurtVignette" type="TextureRect" parent="."]
 modulate = Color( 1, 1, 1, 0 )
 margin_right = 1280.0
@@ -101,6 +106,7 @@ bus = "SFX"
 
 [node name="AudioClick" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 15 )
+volume_db = -5.0
 bus = "SFX"
 
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
@@ -273,3 +279,4 @@ autostart = true
 [connection signal="pressed" from="PauseMenu/QuitButton" to="PauseMenu" method="close_game"]
 [connection signal="timeout" from="IntroTimer" to="." method="_on_IntroTimer_timeout"]
 [connection signal="timeout" from="SecondarySubtitleTimer" to="." method="_on_SecondarySubtitleTimer_timeout"]
+[connection signal="timeout" from="DialogueScrollTimer" to="." method="_on_DialogueScrollTimer_timeout"]

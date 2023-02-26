@@ -62,6 +62,7 @@ func _ready():
 	Globals.enemy1 = self
 	velocity = Vector2.ZERO
 	face_player()
+	Globals.ui.push_line_to_secondary_dialogue("Remember coots, your sword can deflect projectiles!")
 	
 func warn():
 	if is_instance_valid(teleport_indicator):

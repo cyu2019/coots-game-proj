@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/i-am-out-of-ideas-and-there-are-two-hours-left.mp3-bd757289eae70701e9bc1dd2960c4b08.mp3str"
+
+[deps]
+
+source_file="res://music/i-am-out-of-ideas-and-there-are-two-hours-left.mp3"
+dest_files=[ "res://.import/i-am-out-of-ideas-and-there-are-two-hours-left.mp3-bd757289eae70701e9bc1dd2960c4b08.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
