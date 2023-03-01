@@ -33,13 +33,13 @@ func _process(delta):
 		if not $FocusTimer.is_stopped():
 			
 			Globals.camera.move_to(global_position)
-	
-	
 		
 	if enabled and player_in:
 		$Text.visible = true
+		$TextBG.visible = true
 	else:
 		$Text.visible = false
+		$TextBG.visible = false
 	
 	if enabled and player_in and Input.is_action_just_pressed("interact"):
 		Globals.ui.transition_scene(level)

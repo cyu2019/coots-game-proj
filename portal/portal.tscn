@@ -21,12 +21,20 @@ texture = ExtResource( 2 )
 position = Vector2( -0.5, -14 )
 shape = SubResource( 1 )
 
+[node name="TextBG" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0.513726 )
+margin_left = -70.0
+margin_top = -117.0
+margin_right = 72.0
+margin_bottom = -87.0
+color = Color( 0, 0, 0, 1 )
+
 [node name="Text" type="RichTextLabel" parent="."]
 margin_left = -65.0
 margin_top = -109.0
 margin_right = 74.0
 margin_bottom = -93.0
-text = "'f' to go to next level"
+text = "'F' to go to next level"
 
 [node name="FocusTimer" type="Timer" parent="."]
 one_shot = true
