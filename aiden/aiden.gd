@@ -78,7 +78,8 @@ func warn():
 	
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
-	$CollisionShape2D.queue_free()
+	if is_instance_valid($CollisionShape2D):
+		$CollisionShape2D.queue_free()
 	Globals.ui.play_death_sounds(1)
 	state = GAME_STATE.DEAD
 	

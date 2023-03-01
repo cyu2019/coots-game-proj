@@ -63,15 +63,16 @@ func _ready():
 
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
-	$CollisionShape2D.queue_free()
-	state = GAME_STATE.DEAD
+	if is_instance_valid($CollisionShape2D):
+		$CollisionShape2D.queue_free()
 	Globals.ui.play_death_sounds(2)
+	state = GAME_STATE.DEAD
+
+	Globals.camera.shake(1000,1)
+	Engine.time_scale = 1.0
+
 	Globals.camera.move_to(global_position)
 	get_tree().paused = true
-	Globals.camera.shake(1000,1)
-	
-	Engine.time_scale = 1.0
-	#queue_free()
 	var particles = DEATH_PARTICLES_SCENE.instance()
 	particles.global_position = global_position
 	get_tree().get_root().add_child(particles)
@@ -120,8 +121,9 @@ func _process(delta):
 		$AnimatedSprite.offset = Vector2.ZERO
 	
 	# handles falling to their death
-	if global_position.y > 5000:
+	if global_position.y > 0:
 		hurt()
+	
 	
 	# if there is ground within this vector it will stick the player to the ground so they can walk down slopes
 	# see move_and_slide_with_snap
@@ -220,7 +222,7 @@ func _on_ActionTimer_timeout():
 		elif choice == 1:
 			begin_upb()
 		else:
-			begin_laser()
+			begin_upb()
 
 # state transition functions
 func begin_laser():
@@ -244,6 +246,8 @@ func begin_sideb():
 		target_position.x = -STAGE_EDGE_X
 	elif target_position.x > STAGE_EDGE_X:
 		target_position.x = STAGE_EDGE_X
+	print("during begin")
+	print(target_position)
 	$WindupTimer.start()
 
 func begin_upb():
@@ -295,10 +299,14 @@ func _on_WindupTimer_timeout():
 		after_image.global_position = global_position
 		after_image.flip($AnimatedSprite.flip_h)
 		get_tree().get_root().add_child(after_image)
-
 		var dash_dir = (target_position - global_position).normalized()
 		var total_distance = target_position.distance_to(global_position)
-
+		print("during windun")
+		print(target_position)
+		print("dash")
+		print(dash_dir)
+		print("dist")
+		print(total_distance)
 		var cur_distance = after_image_distance
 		while cur_distance <= total_distance:
 			var after = NICK_AFTER_IMAGE.instance()

@@ -64,20 +64,21 @@ func _ready():
 
 func die():
 	pause_mode = Node.PAUSE_MODE_PROCESS
-	$CollisionShape2D.queue_free()
-	state = GAME_STATE.DEAD
+	if is_instance_valid($CollisionShape2D):
+		$CollisionShape2D.queue_free()
 	Globals.ui.play_death_sounds(0)
-	Globals.camera.move_to(global_position)
-	get_tree().paused = true
+	state = GAME_STATE.DEAD
 	
 	Globals.camera.shake(1000,1)
 	Engine.time_scale = 1.0
+
+	Globals.camera.move_to(global_position)
+	get_tree().paused = true
 	var particles = DEATH_PARTICLES_SCENE.instance()
 	particles.global_position = global_position
 	get_tree().get_root().add_child(particles)
-	#queue_free()
 
-func hurt(damage=1):
+func hurt(damage = 1):
 	var prev_health = health
 	health -= damage
 	$AnimatedSprite.modulate = Color(100,100,100)
