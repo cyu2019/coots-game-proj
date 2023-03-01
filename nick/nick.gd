@@ -13,7 +13,7 @@ const gravity = 1500
 const DASH_AMOUNT = 500
 const NICK_AFTER_IMAGE = preload("res://nick/after_image.tscn")
 const after_image_distance = 100
-const STAGE_EDGE_X = 900
+const STAGE_EDGE_X = 950 - 30 - 100
 # upb
 const UPB_SPEED = 1000
 const ATTACK_HEIGHT = 300
@@ -122,7 +122,7 @@ func _process(delta):
 		$AnimatedSprite.offset = Vector2.ZERO
 	
 	# handles falling to their death
-	if global_position.y > 0:
+	if global_position.y > 5000:
 		hurt()
 	
 	
@@ -223,7 +223,7 @@ func _on_ActionTimer_timeout():
 		elif choice == 1:
 			begin_upb()
 		else:
-			begin_upb()
+			begin_laser()
 
 # state transition functions
 func begin_laser():
@@ -247,8 +247,6 @@ func begin_sideb():
 		target_position.x = -STAGE_EDGE_X
 	elif target_position.x > STAGE_EDGE_X:
 		target_position.x = STAGE_EDGE_X
-	print("during begin")
-	print(target_position)
 	$WindupTimer.start()
 
 func begin_upb():
@@ -302,12 +300,6 @@ func _on_WindupTimer_timeout():
 		get_tree().get_root().add_child(after_image)
 		var dash_dir = (target_position - global_position).normalized()
 		var total_distance = target_position.distance_to(global_position)
-		print("during windun")
-		print(target_position)
-		print("dash")
-		print(dash_dir)
-		print("dist")
-		print(total_distance)
 		var cur_distance = after_image_distance
 		while cur_distance <= total_distance:
 			var after = NICK_AFTER_IMAGE.instance()
