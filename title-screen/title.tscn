@@ -72,7 +72,6 @@ texture = ExtResource( 4 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="ParallaxBackground/ParallaxLayer5"]
 frames = SubResource( 1 )
-frame = 2
 playing = true
 
 [node name="ParallaxLayer7" type="ParallaxLayer" parent="ParallaxBackground"]
@@ -108,7 +107,7 @@ margin_right = 244.0
 margin_bottom = -46.0
 text = "Play Game"
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 15 )
 autoplay = true
 

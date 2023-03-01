@@ -11,13 +11,16 @@ enum {FADE_IN, INTRO, DEFAULT, DEAD, DIALOGUE
 	  DEFEATED_BOSS, TRANSITION_TO_NEXT_SCENE, DEFEATED_BOSS_ENDING}
 var state = FADE_IN
 
-# Text dialogue
+# Text dialogue = deprecated, idk im not gonna pretend to touch this
 var scene_text_file = "res://dialogue/slime.json"
 var scene_text = {}
 var selected_text = []
 var in_progress = false
 onready var firsttext = $MainDialogueBG
 onready var firstbackground = $MainDialogueBG
+
+
+var dialogue_lines = []
 
 
 # Called when the node enters the scene tree for the first time.
@@ -34,7 +37,8 @@ func _ready():
 		scene_text_file = "res://dialogue/nick.json"
 		BGM = $BGM3
 	else:
-		BGM = $BGM
+		BGM = $BGM4
+		BGM.play()
 	start()
 	print(level)
 	if level < 3:
@@ -239,4 +243,22 @@ func start_text(text_key):
 		push_line_to_main_dialogue()
 
 func push_line_to_secondary_dialogue(line):
-	pass
+	dialogue_lines.append(line)
+
+
+func _on_DialogueScrollTimer_timeout():
+	if len(dialogue_lines) > 0:
+		$SecondaryDialogue.text = dialogue_lines[0]
+		$SecondaryDialogueBG.visible = true
+		$SecondaryDialogue.visible = true
+		if $SecondaryDialogue.visible_characters < len(dialogue_lines[0]):
+			$AudioClick.play()
+		
+		if $SecondaryDialogue.visible_characters > len(dialogue_lines[0]) + 30:
+			dialogue_lines.pop_front()
+			$SecondaryDialogue.visible_characters = 0
+		$SecondaryDialogue.visible_characters += 1
+		
+	else:
+		$SecondaryDialogueBG.visible = false
+		$SecondaryDialogue.visible = false

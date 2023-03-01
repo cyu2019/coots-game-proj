@@ -62,6 +62,7 @@ func _ready():
 	face_player()
 
 func die():
+	Globals.ui.push_line_to_secondary_dialogue("And with that, the yard was defeated...")
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	if is_instance_valid($CollisionShape2D):
 		$CollisionShape2D.queue_free()
@@ -200,7 +201,7 @@ func _process(delta):
 		if modulate.a <= 0:
 			get_tree().paused = false
 			queue_free()
-			Globals.ui.transition_scene("res://title-screen/title.tscn")
+			Globals.ui.transition_scene("res://ending/Ending.tscn")
 	
 func process_movement_gravity(delta):
 	velocity.y += gravity * delta

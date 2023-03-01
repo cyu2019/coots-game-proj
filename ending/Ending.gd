@@ -1,4 +1,4 @@
-extends Node2D
+extends CanvasLayer
 
 
 # Declare member variables here. Examples:
@@ -12,29 +12,21 @@ var fade_in = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
-	OS.window_maximized = true
 	
-	black = $UI.get_node("Black")
-	$BGM.volume_db = -10
-	
-
+	black = $Black
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	$Camera2D.zoom.x = 1920 / get_viewport().size.x
-	$Camera2D.zoom.y = 1080 / get_viewport().size.y
-	$Camera2D.position = lerp($Camera2D.position, Vector2.ZERO, delta)
 	if fade_in:
-		$BGM.volume_db += delta * 10
+		print("fading in")
 		black.modulate.a -= delta
 		if black.modulate.a <= 0:
 			fade_in = false
 			black.visible = false
 	elif fade_out:
-		$BGM.volume_db -= delta * 40
+		$BGM.volume_db -= 40*delta
 		black.modulate.a += delta
 		if black.modulate.a >= 1.5:
-			get_tree().change_scene("res://levels/intro.tscn")  
+			get_tree().change_scene("res:///title-screen/title.tscn")  
 func _on_Button_pressed():
 	fade_out = true
 	black.visible = true
