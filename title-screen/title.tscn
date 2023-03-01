@@ -72,6 +72,7 @@ texture = ExtResource( 4 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="ParallaxBackground/ParallaxLayer5"]
 frames = SubResource( 1 )
+frame = 1
 playing = true
 
 [node name="ParallaxLayer7" type="ParallaxLayer" parent="ParallaxBackground"]
