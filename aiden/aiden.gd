@@ -362,6 +362,11 @@ func throw_straight_needles(n):
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
 	if is_on_floor():
 		dir_to_player = Vector2(1,0) * (-1 if $AnimatedSprite.flip_h else 1)
+	
+	var reference_vector = Vector2.LEFT if $AnimatedSprite.flip_h else Vector2.RIGHT
+	if abs(dir_to_player.angle_to(reference_vector)) > PI/2.5:
+		dir_to_player = reference_vector.rotated(reference_vector.angle_to(Vector2.DOWN) / 2)
+	
 	for i in range(n):
 		var needle = NEEDLE.instance()
 		get_tree().current_scene.add_child(needle)
@@ -375,6 +380,10 @@ func throw_spread_needles(n):
 	var dir_to_player = (Globals.player.global_position - global_position).normalized()
 	if is_on_floor():
 		dir_to_player = Vector2(1,0) * (-1 if $AnimatedSprite.flip_h else 1)
+	
+	var reference_vector = Vector2.LEFT if $AnimatedSprite.flip_h else Vector2.RIGHT
+	if abs(dir_to_player.angle_to(reference_vector)) > PI/2.5:
+		dir_to_player = reference_vector.rotated(reference_vector.angle_to(Vector2.DOWN) / 2)
 	
 	var spread = PI/6
 	var initial_angle = sign(dir_to_player.x) * spread if not is_on_floor() else 0

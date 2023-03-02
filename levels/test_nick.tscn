@@ -14,7 +14,7 @@
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 9.925, 10 )
 
-[node name="dummy" type="Node2D"]
+[node name="dummy2" type="Node2D"]
 light_mask = 0
 
 [node name="player" parent="." instance=ExtResource( 1 )]

@@ -1,11 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://portal/portal.gd" type="Script" id=1]
 [ext_resource path="res://portal/portal.png" type="Texture" id=2]
 [ext_resource path="res://sounds/portal-sound.wav" type="AudioStream" id=3]
+[ext_resource path="res://ui/BaksoSapi.otf" type="DynamicFontData" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 45.5, 64 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 10
+font_data = ExtResource( 4 )
 
 [node name="Portal" type="Area2D"]
 pause_mode = 2
@@ -30,10 +35,11 @@ margin_bottom = -87.0
 color = Color( 0, 0, 0, 1 )
 
 [node name="Text" type="RichTextLabel" parent="."]
-margin_left = -65.0
+margin_left = -62.0
 margin_top = -109.0
-margin_right = 74.0
-margin_bottom = -93.0
+margin_right = 66.0
+margin_bottom = -88.0
+custom_fonts/normal_font = SubResource( 2 )
 text = "'F' to go to next level"
 
 [node name="FocusTimer" type="Timer" parent="."]
